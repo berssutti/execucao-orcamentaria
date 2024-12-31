@@ -26,5 +26,16 @@ services:
         - path: ./backend
           action: rebuild
 
+  frontend:
+    build: ./frontend
+    container_name: orcamento-execucao_frontend
+    command: yarn serve
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
