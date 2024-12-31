@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:15
+    container_name: orcamento-execucao_db
+    environment:
+      POSTGRES_DB: orcamento-execucao_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: orcamento-execucao_backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    develop:
+      watch:
+        - path: ./backend
+          action: rebuild
+
+volumes:
+  pgdata:
