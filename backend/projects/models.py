@@ -77,9 +77,22 @@ class Installment(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='installments')
     amount = models.FloatField()
     estimated_date = models.DateField()
-    effective_date = models.DateField()
-    observation = models.CharField(max_length=200)
-    destination = models.CharField(max_length=200)
+    effective_date = models.DateField(
+        null=True,
+        blank=True
+    )
+    observation = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True
+    )
+    
+    destination = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True    
+    )
+
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
