@@ -114,7 +114,7 @@
               <v-text-field
                 v-model="project.processo_sei"
                 label="Processo SEI"
-                placeholder="12345.123456/2024-12"
+                placeholder="*****.******/****-**"
                 :rules="[rules.required, rules.seiFormat]"
                 required
               ></v-text-field>
@@ -238,7 +238,7 @@
             parseFloat(value) > 0 || 'Deve ser um número positivo.',
           seiFormat: (value) =>
             /^\d{5}\.\d{6}\/\d{4}-\d{2}$/.test(value) || 
-            'Formato inválido. Use: ddddd.dddddd/YYYY-MM',
+            'Formato inválido. Use: *****.******/****-**',
           percentage: (value) =>
             value >= 0 && value <= 100 || 'A porcentagem deve estar entre 0 e 100.',
         }
