@@ -1,0 +1,11 @@
+FROM node:18.20.5
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN yarn install
+
+COPY . .
+
+CMD ["yarn", "serve"]

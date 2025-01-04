@@ -9,12 +9,15 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "@mdi/font": "^7.4.47",
+    "axios": "^1.7.9",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "vuetify": "^3.7.6"
   },
   "devDependencies": {
     "@vue/cli": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/compiler-sfc": "^3.5.13",
-    "vite-plugin-vue-devtools": "^7.6.8"
+    "@vue/compiler-sfc": "^3.5.13"
   }
 }
