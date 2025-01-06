@@ -6,7 +6,7 @@ import ProjectDetails from '@/components/ProjectDetails.vue';
 
 const routes = [
   {
-    path: '/projects/list',
+    path: '/projects',
     name: 'ProjectList',
     component: ProjectList,
     meta: { title: 'Lista de Projetos'} 

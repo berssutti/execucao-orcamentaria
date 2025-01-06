@@ -91,6 +91,7 @@
                 v-model="project.total_unb_amount_expected"
                 label="Custos Indiretos UnB"
                 type="number"
+                prefix="R$"
                 :rules="[rules.required, rules.positive]"
                 placeholder="Valor esperado para UnB"
                 required
@@ -101,6 +102,7 @@
                 v-model="project.total_fcte_amount_expected"
                 label="Custos Indiretos FCTE"
                 type="number"
+                prefix="R$"
                 :rules="[rules.required, rules.positive]"
                 placeholder="Valor esperado para FCTE"
                 required
@@ -177,6 +179,7 @@
                 v-model.number="area.percentage"
                 label="Porcentagem"
                 type="number"
+                suffix="%"
                 :rules="[rules.required, rules.percentage]"
                 required
               ></v-text-field>
