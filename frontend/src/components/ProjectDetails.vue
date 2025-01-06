@@ -6,7 +6,6 @@
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="editProject">Editar</v-btn>
         </v-card-title>
-        <v-divider></v-divider>
   
         <v-card-text>
           <h3 class="section-title">Informações Gerais</h3>

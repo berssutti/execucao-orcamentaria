@@ -150,7 +150,7 @@
               </v-col>
               <v-col cols="12" md="4">
                 <v-text-field
-                  v-model="project.Ugr"
+                  v-model="project.ugr"
                   label="UGR"
                   :rules="[rules.required]"
                   required
@@ -221,7 +221,7 @@
           status: 'Processando',
           nota_dotacao: '',
           ptres: '',
-          Ugr: '',
+          ugr: '',
           total_unb_amount_expected: '',
           total_fcte_amount_expected: '',
           areas: [],
@@ -289,7 +289,7 @@
       validateStatus() {
         if (
           this.project.status === 'Recebido' &&
-          (!this.project.nota_dotacao || !this.project.ptres || !this.project.Ugr)
+          (!this.project.nota_dotacao || !this.project.ptres || !this.project.ugr)
         ) {
           alert(
             'Para alterar o status para "Recebido", é necessário preencher os campos Nota de Dotação, PTRES e UGR.'
@@ -301,7 +301,7 @@
         try {
           if (
             this.project.status === 'Recebido' &&
-            (!this.project.nota_dotacao || !this.project.ptres || !this.project.Ugr)
+            (!this.project.nota_dotacao || !this.project.ptres || !this.project.ugr)
           ) {
             alert(
               'Para salvar com o status "Recebido", preencha os campos Nota de Dotação, PTRES e UGR.'
