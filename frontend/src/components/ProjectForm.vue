@@ -260,6 +260,15 @@
           const response = await fetch(`http://localhost:8000/api/projects/${this.id}/`);
           if (!response.ok) throw new Error('Erro ao buscar detalhes do projeto');
           this.project = await response.json();
+
+          const areasResponse = await fetch(`http://localhost:8000/api/projects/${this.id}/areas/`);
+          if (!areasResponse.ok) throw new Error('Erro ao buscar áreas do projeto');
+          const areasData = await areasResponse.json();
+
+          this.project.areas = areasData.map(area => ({
+            id: area.area,
+            percentage: parseFloat(area.percentage)
+          }));
         } catch (error) {
           console.error('Erro:', error);
         }
