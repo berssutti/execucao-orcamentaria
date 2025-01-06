@@ -2,10 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import ProjectForm from '@/components/ProjectForm.vue';
 import ProjectList from '@/components/ProjectList.vue';
+import ProjectDetails from '@/components/ProjectDetails.vue';
 
 const routes = [
   {
-    path: '/projects/list',
+    path: '/projects',
     name: 'ProjectList',
     component: ProjectList,
     meta: { title: 'Lista de Projetos'} 
@@ -15,6 +16,13 @@ const routes = [
     name: 'ProjectCreate',
     component: ProjectForm,
     meta: { title: 'Cadastrar Projeto'}
+  },
+  {
+    path: '/projects/:id',
+    name: 'ProjectDetails',
+    component: ProjectDetails,
+    props: true,
+    meta: {title: 'Detalhes do Projeto'}
   },
 ];
 

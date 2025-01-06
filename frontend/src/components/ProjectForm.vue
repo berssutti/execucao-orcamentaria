@@ -91,6 +91,7 @@
                 v-model="project.total_unb_amount_expected"
                 label="Custos Indiretos UnB"
                 type="number"
+                prefix="R$"
                 :rules="[rules.required, rules.positive]"
                 placeholder="Valor esperado para UnB"
                 required
@@ -101,6 +102,7 @@
                 v-model="project.total_fcte_amount_expected"
                 label="Custos Indiretos FCTE"
                 type="number"
+                prefix="R$"
                 :rules="[rules.required, rules.positive]"
                 placeholder="Valor esperado para FCTE"
                 required
@@ -150,7 +152,7 @@
               </v-col>
               <v-col cols="12" md="4">
                 <v-text-field
-                  v-model="project.Ugr"
+                  v-model="project.ugr"
                   label="UGR"
                   :rules="[rules.required]"
                   required
@@ -177,6 +179,7 @@
                 v-model.number="area.percentage"
                 label="Porcentagem"
                 type="number"
+                suffix="%"
                 :rules="[rules.required, rules.percentage]"
                 required
               ></v-text-field>
@@ -221,7 +224,7 @@
           status: 'Processando',
           nota_dotacao: '',
           ptres: '',
-          Ugr: '',
+          ugr: '',
           total_unb_amount_expected: '',
           total_fcte_amount_expected: '',
           areas: [],
@@ -289,7 +292,7 @@
       validateStatus() {
         if (
           this.project.status === 'Recebido' &&
-          (!this.project.nota_dotacao || !this.project.ptres || !this.project.Ugr)
+          (!this.project.nota_dotacao || !this.project.ptres || !this.project.ugr)
         ) {
           alert(
             'Para alterar o status para "Recebido", é necessário preencher os campos Nota de Dotação, PTRES e UGR.'
@@ -301,7 +304,7 @@
         try {
           if (
             this.project.status === 'Recebido' &&
-            (!this.project.nota_dotacao || !this.project.ptres || !this.project.Ugr)
+            (!this.project.nota_dotacao || !this.project.ptres || !this.project.ugr)
           ) {
             alert(
               'Para salvar com o status "Recebido", preencha os campos Nota de Dotação, PTRES e UGR.'
