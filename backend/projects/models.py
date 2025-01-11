@@ -1,6 +1,13 @@
 from django.db import models
 from django.core.validators import RegexValidator
 
+class Area(models.Model):
+    name = models.CharField(max_length=100)
+    projects = models.ManyToManyField('Project', through='ProjectArea')
+
+    def __str__(self):
+        return self.name 
+
 class Project(models.Model):
     STATUS_CHOICES = [
         ('Processando', 'Processando'),
@@ -50,11 +57,6 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-class Area(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name 
 
 class ProjectArea(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -63,7 +65,7 @@ class ProjectArea(models.Model):
 
     class Meta:
         unique_together = ('project', 'area')
-    
+
     def __str__(self):
         return f"{self.project.name} - {self.area.name} ({self.percentage}%)"
 
@@ -74,7 +76,7 @@ class Installment(models.Model):
         ('Pendente', 'Pendente'),
     ]
 
-    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='installments')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='installments')
     amount = models.FloatField()
     estimated_date = models.DateField()
     effective_date = models.DateField(

@@ -24,6 +24,12 @@ const routes = [
     props: true,
     meta: {title: 'Detalhes do Projeto'}
   },
+  {
+    path: '/projects/edit/:id',
+    name: 'ProjectEdit',
+    component: ProjectForm,
+    props: true,
+  },
 ];
 
 const router = createRouter({

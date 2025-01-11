@@ -93,75 +93,74 @@
 </template>
   
 <script>
-  export default {
-    name: 'ProjectDetails',
-    data() {
-      return {
-        project: {
-          name: '',
-          description: '',
-          start_date: null,
-          end_date: null,
-          total_unb_amount_expected: null,
-          total_fcte_amount_expected: null,
-          coordinator: '',
-          substitute_coordinator: '',
-          academic_supervisor: '',
-          processo_sei: '',
-          status: null,
-          nota_dotacao: '',
-          ptres: '',
-          ugr: '',
-        },
-        areaList: [],
-        projectAreas: [],
-      };
-    },
-    async created() {
-      await this.fetchAreas();
-      await this.fetchProjectDetails();
-    },
-    methods: {
-      async fetchProjectDetails() {
-        const projectId = this.$route.params.id;
-        try {
-          const response = await fetch(`http://localhost:8000/api/projects/${projectId}/`);
-          if (!response.ok) throw new Error('Erro ao buscar detalhes do projeto');
-          this.project = await response.json();
+export default {
+  name: 'ProjectDetails',
+  data() {
+    return {
+      project: {
+        name: '',
+        description: '',
+        start_date: null,
+        end_date: null,
+        total_unb_amount_expected: null,
+        total_fcte_amount_expected: null,
+        coordinator: '',
+        substitute_coordinator: '',
+        academic_supervisor: '',
+        processo_sei: '',
+        status: null,
+        nota_dotacao: '',
+        ptres: '',
+        ugr: '',
+        areas: []
+      },
+      areaList: [],
+      projectAreas: [],
+    };
+  },
+  async created() {
+    await this.fetchAreas();
+    await this.fetchProjectDetails();
+  },
+  methods: {
+    async fetchProjectDetails() {
+      const projectId = this.$route.params.id;
+      try {
+        const response = await fetch(`http://localhost:8000/api/projects/${projectId}/`);
+        if (!response.ok) throw new Error('Erro ao buscar detalhes do projeto');
+        const projectData = await response.json();
 
-          const areasResponse = await fetch(`http://localhost:8000/api/projects/${projectId}/areas/`);
-          if (!areasResponse.ok) throw new Error('Erro ao buscar áreas do projeto');
-          const projectAreasData = await areasResponse.json();
-  
-          this.projectAreas = projectAreasData.map((area) => {
-            const matchedArea = this.areaList.find((a) => a.id === area.area);
-            return {
-              name: matchedArea ? matchedArea.name : 'Área Desconhecida',
-              percentage: area.percentage,
-            };
-          });
-        } catch (error) {
-          console.error('Erro:', error);
-        }
-      },
-      async fetchAreas() {
-        try {
-          const response = await fetch('http://localhost:8000/api/areas/');
-          if (!response.ok) throw new Error('Erro ao buscar lista de áreas');
-          this.areaList = await response.json();
-        } catch (error) {
-          console.error('Erro:', error);
-        }
-      },
-      editProject() {
-        this.$router.push(`/projects/edit/${this.$route.params.id}`);
-      },
-      formatDate(date) {
-        if (!date) return 'N/A';
-        return new Date(date).toLocaleDateString('pt-BR');
-      },
+        this.project = { ...projectData };
+
+        this.projectAreas = projectData.areas.map((area) => {
+          const matchedArea = this.areaList.find((a) => a.name === area.area_name);
+          return {
+            name: matchedArea ? matchedArea.name : area.area_name,
+            percentage: parseFloat(area.percentage),
+          };
+        });
+      } catch (error) {
+        console.error('Erro ao carregar os detalhes do projeto:', error);
+      }
     },
-  };
+    async fetchAreas() {
+      try {
+        const response = await fetch('http://localhost:8000/api/areas/');
+        if (!response.ok) throw new Error('Erro ao buscar lista de áreas');
+        this.areaList = await response.json();
+      } catch (error) {
+        console.error('Erro ao carregar a lista de áreas:', error);
+      }
+    },
+    editProject() {
+      this.$router.push(`/projects/edit/${this.$route.params.id}`);
+    },
+    formatDate(date) {
+      if (!date) return 'N/A';
+      return new Date(date).toLocaleDateString('pt-BR');
+    },
+  },
+};
 </script>
   
 <style scoped>
