@@ -259,19 +259,25 @@
         try {
           const response = await fetch(`http://localhost:8000/api/projects/${this.id}/`);
           if (!response.ok) throw new Error('Erro ao buscar detalhes do projeto');
-          this.project = await response.json();
 
-          const areasResponse = await fetch(`http://localhost:8000/api/projects/${this.id}/areas/`);
-          if (!areasResponse.ok) throw new Error('Erro ao buscar áreas do projeto');
-          const areasData = await areasResponse.json();
+          const projectData = await response.json();
 
-          this.project.areas = areasData.map(area => ({
-            id: area.area,
-            percentage: parseFloat(area.percentage)
-          }));
+          this.project = {
+            ...projectData,
+            areas: projectData.areas.map((area) => ({
+              id: this.getAreaIdByName(area.area_name),
+              area_name: area.area_name,
+              percentage: parseFloat(area.percentage),
+            })),
+          };
         } catch (error) {
           console.error('Erro:', error);
         }
+      },
+
+      getAreaIdByName(areaName) {
+        const area = this.areaList.find((item) => item.name === areaName);
+        return area ? area.id : null;
       },
       async fetchAreas() {
         try {
@@ -324,55 +330,43 @@
             alert('A soma das porcentagens das áreas deve ser 100%');
             return;
           }
-  
+
           const url = this.isEditing
             ? `http://localhost:8000/api/projects/${this.id}/`
             : 'http://localhost:8000/api/projects/';
           const method = this.isEditing ? 'PUT' : 'POST';
-  
+
+          const projectPayload = {
+            ...this.project,
+            areas: this.project.areas.map((area) => ({
+              area_name: this.getAreaNameById(area.id),
+              percentage: area.percentage,
+            })),
+          };
+
           const response = await fetch(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(this.project),
+            body: JSON.stringify(projectPayload),
           });
-  
-          if (!response.ok) throw new Error('Erro ao salvar projeto');
-          
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Erro ao salvar projeto:', errorData);
+            throw new Error('Erro ao salvar projeto');
+          }
+
           const projectData = await response.json();
-
-          await this.saveAreas(projectData.id);
-
           this.$router.push(`/projects/${this.isEditing ? this.id : projectData.id}`);
         } catch (error) {
           console.error('Erro:', error);
+          alert('Ocorreu um erro ao salvar o projeto. Tente novamente.');
         }
       },
-      async saveAreas(projectId) {
-        try {
-          for (const area of this.project.areas) {
-            if (area.id && area.percentage >= 0) {
-              const response = await fetch(`http://localhost:8000/api/projects/${projectId}/areas/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  project: projectId,
-                  area: area.id,
-                  percentage: area.percentage,
-                }),
-              });
-              if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Erro ao salvar área:', errorData);
-                throw new Error('Erro ao salvar área');
-              }
-            } else {
-              console.error('Área ou porcentagem inválida:', area);
-            }
-          }
-        } catch (error) {
-          console.error('Erro ao salvar áreas:', error);
-          alert('Erro ao salvar áreas. Verifique os dados e tente novamente.');
-        }
+
+      getAreaNameById(areaId) {
+        const area = this.areaList.find((item) => item.id === areaId);
+        return area ? area.name : '';
       },
     },
   };
