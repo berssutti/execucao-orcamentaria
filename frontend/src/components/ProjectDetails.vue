@@ -4,11 +4,17 @@
         <v-card-title>
           <h2>Detalhes do Projeto</h2>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="editProject">Editar</v-btn>
-          <v-btn class="btn-installment" color="success" @click="openInstallmentModal">Adicionar Parcela</v-btn>
+          <v-btn class="ml-2" color="primary" @click="editProject">Editar Projeto</v-btn>
+          <v-btn color="red" @click="deleteProject" class="ml-2 btn-delete-project">Deletar Projeto</v-btn>
+          <v-btn class="ml-2 btn-installment" color="success" @click="openCreateModal">Adicionar Parcela</v-btn>
         </v-card-title>
   
         <v-card-text>
+
+          <v-alert v-if="alertMessage" :type="alertType" dismissible>
+            {{ alertMessage }}
+          </v-alert>
+
           <h3 class="section-title">Informações Gerais</h3>
           <v-row>
             <v-col cols="12" md="6">
@@ -99,6 +105,10 @@
                       Parcela {{ index + 1 }} - Status: {{ installment.status }}  - R$ {{ installment.amount }}
                     </v-list-item-title>
                   </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn @click="openEditModal(installment)" color="primary" size="small">Editar</v-btn>
+                    <v-btn @click="deleteInstallment(installment.id)" color="red" size="small" class="btn-delete-installment">Deletar</v-btn>
+                  </v-list-item-action>
                 </v-list-item>
               </template>
 
@@ -121,36 +131,37 @@
             </v-list-group>
           </v-list>
           <v-row v-else>
-          <v-col cols="12">
-            <v-alert type="info" :value="true">
-              Nenhuma parcela cadastrada.
-            </v-alert>
-          </v-col>
-        </v-row>
+            <v-col cols="12">
+              <v-alert type="info" :value="true">
+                Nenhuma parcela cadastrada.
+              </v-alert>
+            </v-col>
+          </v-row>
 
           <v-dialog v-model="installmentModal" max-width="500px">
             <v-card>
               <v-card-title>
-                <span class="headline">Adicionar Parcela</span>
+                <span class="headline">{{ isEditing ? 'Editar Parcela' : 'Adicionar Parcela' }}</span>
               </v-card-title>
               <v-card-text>
                 <v-form ref="installmentForm" v-model="valid">
-                  <v-text-field v-model="newInstallment.amount" label="Valor" :rules="[v => !!v || 'Campo obrigatório']" type="number" />
-                  <v-text-field v-model="newInstallment.estimated_date" label="Data Estimada" :rules="[v => !!v || 'Campo obrigatório']" type="date" />
-                  <v-text-field v-model="newInstallment.observation" label="Observação" />
-                  <v-text-field v-model="newInstallment.destination" label="Destino" />
-                  
+                  <v-text-field v-model="installment.amount" label="Valor" :rules="[v => !!v || 'Campo obrigatório']" prefix="R$" type="number" />
+                  <v-text-field v-model="installment.estimated_date" label="Data Estimada" :rules="[v => !!v || 'Campo obrigatório']" type="date" />
+                  <v-text-field v-model="installment.observation" label="Observação" />
+                  <v-text-field v-model="installment.destination" label="Destino" />
+
                   <v-select
-                    v-model="newInstallment.status"
+                    v-model="installment.status"
                     :items="statusOptions"
                     label="Status"
                     :rules="[v => !!v || 'Campo obrigatório']"
                   />
 
                   <v-text-field
-                    v-if="newInstallment.status === 'Quitada'"
-                    v-model="newInstallment.effective_date"
+                    v-if="installment.status === 'Quitada'"
+                    v-model="installment.effective_date"
                     label="Data Efetiva"
+                    :rules="[v => !!v || 'Campo obrigatório']"
                     type="date"
                   />
                 </v-form>
@@ -158,7 +169,7 @@
 
               <v-card-actions>
                 <v-btn color="blue" @click="installmentModal = false">Cancelar</v-btn>
-                <v-btn color="green" :disabled="!valid" @click="addInstallment">Salvar</v-btn>
+                <v-btn color="green" :disabled="!valid" @click="saveInstallment">Salvar</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -188,18 +199,22 @@ export default {
         nota_dotacao: '',
         ptres: '',
         ugr: '',
-        areas: []
+        areas: [],
+        alertMessage: '',
+        alertType: '',
+
       },
       installments: [],
       installmentModal: false,
+      isEditing: false,
       valid: false,
-      newInstallment: {
+      installment: {
         amount: null,
         estimated_date: null,
         effective_date: null,
         observation: '',
         destination: '',
-        status: 'Pendente',
+        status: '',
       },
       statusOptions: ['Atrasada', 'Quitada', 'Pendente'],
     };
@@ -251,44 +266,108 @@ export default {
     toggleInstallmentDetails(index) {
       this.expandedIndex = index;
     },
-    openInstallmentModal() {
+    openEditModal(installment) {
+      this.isEditing = true;
+      this.installment = { ...installment };
       this.installmentModal = true;
     },
-    async addInstallment() {
+    openCreateModal() {
+      this.isEditing = false;
+      this.installment = {
+        amount: '',
+        estimated_date: '',
+        observation: '',
+        destination: '',
+        status: 'Pendente',
+        effective_date: ''
+      };
+      this.installmentModal = true;
+    },
+    async saveInstallment() {
       const projectId = this.$route.params.id;
+      const method = this.isEditing ? 'PUT' : 'POST';
+      const url = this.isEditing
+        ? `http://localhost:8000/api/projects/${projectId}/installments/${this.installment.id}/`
+        : `http://localhost:8000/api/projects/${projectId}/installments/`;
+
       try {
-        const response = await fetch(`http://localhost:8000/api/projects/${projectId}/installments/`, {
-          method: 'POST',
+        const response = await fetch(url, {
+          method: method,
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             project: projectId,
-            amount: this.newInstallment.amount,
-            estimated_date: this.newInstallment.estimated_date,
-            effective_date: this.newInstallment.effective_date || null,
-            observation: this.newInstallment.observation,
-            destination: this.newInstallment.destination,
-            status: this.newInstallment.status,
+            amount: this.installment.amount,
+            estimated_date: this.installment.estimated_date,
+            effective_date: this.installment.effective_date || null,
+            observation: this.installment.observation,
+            destination: this.installment.destination,
+            status: this.installment.status,
           }),
         });
 
         if (response.ok) {
-          this.installmentModal = false;
-          this.newInstallment = {
-            amount: null,
-            estimated_date: null,
-            effective_date: null,
-            observation: '',
-            destination: '',
-            status: 'Pendente',
-          };
-          await this.fetchInstallments();
+          const data = await response.json();
+          if (this.isEditing) {
+            const index = this.installments.findIndex(inst => inst.id === data.id);
+            this.installments.splice(index, 1, data);
+          } else {
+            this.installments.push(data);
+          }
+          this.installmentModal = false; // Fecha o modal
+          
+          this.alertMessage = 'Parcela salva com sucesso!';
+          this.alertType = 'success';
         } else {
-          alert('Erro ao adicionar parcela');
+          this.alertMessage = 'Erro ao salvar parcela';
+          this.alertType = 'error';
         }
       } catch (error) {
-        console.error('Erro ao adicionar parcela:', error);
+        console.error('Erro ao salvar parcela:', error);
+        this.alertMessage = 'Erro ao salvar parcela';
+        this.alertType = 'error';
+      }
+    },
+    async deleteInstallment(installmentId) {
+      const projectId = this.$route.params.id;
+      try {
+        const response = await fetch(`http://localhost:8000/api/projects/${projectId}/installments/${installmentId}/`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          this.installments = this.installments.filter(inst => inst.id !== installmentId);  // Atualiza a lista
+          
+          this.alertMessage = 'Parcela deletada com sucesso';
+          this.alertType = 'success';
+        } else {
+          this.alertMessage = 'Erro ao deletar parcela';
+          this.alertType = 'error';
+        }
+      } catch (error) {
+        console.error('Erro ao deletar parcela:', error);
+        this.alertMessage = 'Erro ao deletar parcela';
+        this.alertType = 'error';
+      }
+    },
+    async deleteProject() {
+      const projectId = this.$route.params.id;
+      try {
+        const response = await fetch(`http://localhost:8000/api/projects/${projectId}/`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          this.$router.push('/projects');  // Redireciona para a lista de projetos após a exclusão
+          this.alertMessage = 'Projeto deletado com sucesso!';
+          this.alertType = 'success';
+        } else {
+          this.alertMessage = 'Erro ao deletar projeto';
+          this.alertType = 'error';
+        }
+      } catch (error) {
+        console.error('Erro ao deletar projeto:', error);
+        this.alertMessage = 'Erro ao deletar projeto';
+        this.alertType = 'error';
       }
     },
     editProject() {
@@ -326,7 +405,12 @@ export default {
   margin-bottom: 8px;
 }
 
-.btn-installment {
+.btn-delete-project{
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.btn-delete-installment {
   margin-left: 10px;
 }
 
