@@ -6,8 +6,11 @@ from .views import ProjectViewSet, AreaViewSet, InstallmentViewSet
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet, basename='project')
 router.register(r'areas', AreaViewSet, basename='area')
-router.register(r'installments', InstallmentViewSet, basename='installment')
+
+projects_router = routers.NestedDefaultRouter(router, r'projects', lookup='project')
+projects_router.register(r'installments', InstallmentViewSet, basename='project-installment')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('', include(projects_router.urls)),
 ] 

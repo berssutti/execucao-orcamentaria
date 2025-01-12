@@ -37,9 +37,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'areas',
         ]
 
-    # Override create and update methods to handle nested data from ProjectAreaSerializer, so projects and areas percentages can be created in one request
     def create(self, validated_data):
-        # Might not be the best way to handle nested data, but it works (projectarea_set is automatically created by django but is not a field in the model)
         areas_data = validated_data.pop('projectarea_set', [])
 
         project = Project.objects.create(**validated_data)
@@ -64,7 +62,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
             for area_data in areas_data:
                 area_info = area_data.pop('area')
-                # Verify for area by id or name, this way frontend can send either id or name
                 if 'id' in area_info:
                     area = Area.objects.get(id=area_info['id'])
                 elif 'name' in area_info:
