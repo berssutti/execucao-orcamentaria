@@ -26,14 +26,13 @@
           label="Filtrar por ano"
           placeholder="Selecione o ano"
           dense
-          clearable
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col
-        v-for="project in filteredProjects"
+        v-for="project in paginatedProjects"
         :key="project.id"
         cols="12"
         md="4"
@@ -41,20 +40,28 @@
         <v-card
           class="pa-2"
           @click="viewProjectDetails(project.id)"
-          elevation="2"
+          elevation="1"
         >
           <v-card-title>{{ project.name }}</v-card-title>
           <v-card-subtitle>{{ project.description }}</v-card-subtitle>
           <v-card-text>
             <p><strong>Coordenador:</strong> {{ project.coordinator }}</p>
-            <p><strong>Data de Início:</strong> {{ project.start_date }}</p>
-            <p><strong>Data de Término:</strong> {{ project.end_date }}</p>
+            <p><strong>Data de Início:</strong> {{ formatDate(project.start_date) }}</p>
+            <p><strong>Data de Término:</strong> {{ formatDate(project.end_date) }}</p>
           </v-card-text>
           <v-card-actions>
             <v-btn text color="primary">Ver Detalhes</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
+    </v-row>
+
+    <v-row justify="center" class="mt-4">
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        total-visible="5"
+      ></v-pagination>
     </v-row>
 
     <v-row v-if="loading" justify="center">
@@ -78,25 +85,37 @@ export default {
       loading: false,
       error: null,
       years: [],
+      currentPage: 1,
+      itemsPerPage: 6,
     };
   },
   computed: {
     filteredProjects() {
       return this.projects.filter((project) => {
+        if(this.searchQuery === null) return true;
+
         const projectYearStart = new Date(project.start_date).getFullYear();
         const projectYearEnd = new Date(project.end_date).getFullYear();
         const isYearInRange =
           (this.selectedYear >= projectYearStart && this.selectedYear <= projectYearEnd);
-
+        
         const isKeywordMatch = (project.description + project.name + project.coordinator + project.processo_sei)
           .toLowerCase()
           .includes(this.searchQuery.toLowerCase());
-
-        return isYearInRange && isKeywordMatch;
+          
+          return isYearInRange && isKeywordMatch;
       });
     },
+    paginatedProjects() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredProjects.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredProjects.length / this.itemsPerPage);
+    },
   },
-created() {
+  created() {
     this.fetchProjects();
   },
   methods: {
@@ -131,8 +150,12 @@ created() {
       let minStartYear = currentYear;
 
       this.projects.forEach(project => {
-        const projectEndYear = new Date(project.end_date).getFullYear();
-        const projectStartYear = new Date(project.start_date).getFullYear();
+        const projectEndDate = new Date(project.end_date + 'T00:00:00'); // add time to avoid timezone issues
+        const projectStartDate = new Date(project.start_date + 'T00:00:00');
+
+        const projectEndYear = projectEndDate.getFullYear();
+        const projectStartYear = projectStartDate.getFullYear();
+
         if (projectEndYear > maxEndYear) {
           maxEndYear = projectEndYear;
         }
@@ -141,11 +164,11 @@ created() {
         }
       });
 
-      const years = [];
-      for (let i = minStartYear; i <= maxEndYear; i++) {
-        years.push(i);
-      }
-      return years;
+      return Array.from({ length: maxEndYear - minStartYear + 1 }, (_, i) => minStartYear + i);
+    },
+    formatDate(date) {
+      if (!date) return 'N/A';
+      return new Date(date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}); // timezone utc so it doesn't subtract a day 
     },
   },
 };
