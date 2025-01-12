@@ -23,6 +23,6 @@
 
 <style>
 .v-main {
-  min-height: calc(100vh - 64px - 56px); /* Altura da Barra + Rodapé */
+  min-height: calc(100vh - 64px);
 }
 </style>

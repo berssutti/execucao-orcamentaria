@@ -157,7 +157,7 @@ export default {
     },
     formatDate(date) {
       if (!date) return 'N/A';
-      return new Date(date).toLocaleDateString('pt-BR');
+      return new Date(date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}); // timezone utc so it doesn't subtract a day 
     },
   },
 };
