@@ -4,11 +4,18 @@
         <v-card-title>
           <h2>Detalhes do Projeto</h2>
           <v-spacer></v-spacer>
-          <v-btn class="ml-2" color="primary" @click="editProject">Editar Projeto</v-btn>
-          <v-btn color="red" @click="deleteProject" class="ml-2 btn-delete-project">Deletar Projeto</v-btn>
-          <v-btn class="ml-2 btn-installment" color="success" @click="openCreateModal">Adicionar Parcela</v-btn>
+          <v-row>
+            <v-col>
+              <v-btn color="primary" @click="editProject">Editar Projeto</v-btn>
+              <v-btn class="ml-2" color="red" @click="deleteProject">Deletar Projeto</v-btn>
+              <v-btn class="ml-2" color="success" @click="openCreateModal">Adicionar Parcela</v-btn>
+            </v-col>
+            <v-col>
+              <v-btn rounded="xl" color="grey" @click="goBack">Voltar</v-btn>
+            </v-col>
+          </v-row>
         </v-card-title>
-  
+
         <v-card-text>
 
           <v-alert v-if="alertMessage" :type="alertType" dismissible>
@@ -107,7 +114,7 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn @click="openEditModal(installment)" color="primary" size="small">Editar</v-btn>
-                    <v-btn @click="deleteInstallment(installment.id)" color="red" size="small" class="btn-delete-installment">Deletar</v-btn>
+                    <v-btn class="ml-2" @click="deleteInstallment(installment.id)" color="red" size="small">Deletar</v-btn>
                   </v-list-item-action>
                 </v-list-item>
               </template>
@@ -290,6 +297,10 @@ export default {
         ? `http://localhost:8000/api/projects/${projectId}/installments/${this.installment.id}/`
         : `http://localhost:8000/api/projects/${projectId}/installments/`;
 
+      if (this.installment.status === 'Quitada' || this.installment.status === 'Atrasada') {
+        this.installment.effective_date = null
+      }
+
       try {
         const response = await fetch(url, {
           method: method,
@@ -315,7 +326,7 @@ export default {
           } else {
             this.installments.push(data);
           }
-          this.installmentModal = false; // Fecha o modal
+          this.installmentModal = false;
           
           this.alertMessage = 'Parcela salva com sucesso!';
           this.alertType = 'success';
@@ -377,6 +388,9 @@ export default {
       if (!date) return 'N/A';
       return new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
     },
+    goBack() {
+      this.$router.push('/projects');
+    },
   },
 };
 </script>
@@ -403,15 +417,6 @@ export default {
 
 .v-row {
   margin-bottom: 8px;
-}
-
-.btn-delete-project{
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.btn-delete-installment {
-  margin-left: 10px;
 }
 
 .v-expansion-panel-header {
