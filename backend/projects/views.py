@@ -14,5 +14,8 @@ class AreaViewSet(viewsets.ModelViewSet):
     serializer_class = AreaSerializer
 
 class InstallmentViewSet(viewsets.ModelViewSet):
-    queryset = Installment.objects.all()
     serializer_class = InstallmentSerializer
+
+    def get_queryset(self):
+        project_id = self.kwargs.get('project_pk')
+        return Installment.objects.filter(project_id=project_id).order_by('estimated_date')
