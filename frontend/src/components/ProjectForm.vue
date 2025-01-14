@@ -190,13 +190,13 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-btn color="secondary" @click="addArea" class="mb-4">+ Adicionar Área</v-btn>
+          <v-btn color="secondary" @click="addArea" class="mb-4" prepend-icon="mdi-plus">Adicionar Área</v-btn>
 
           <v-divider class="my-4"></v-divider>
 
           <v-row>
             <v-col cols="12" class="text-right">
-              <v-btn color="secondary" class="mr-2" @click="$router.back()">Cancelar</v-btn>
+              <v-btn color="grey" class="mr-2" @click="$router.back()">Cancelar</v-btn>
               <v-btn type="submit" color="primary">Salvar</v-btn>
             </v-col>
           </v-row>

@@ -116,6 +116,13 @@ export default {
     },
   },
   created() {
+    const savedState = sessionStorage.getItem('projectsListState');
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      this.searchQuery = state.searchQuery;
+      this.selectedYear = state.selectedYear;
+      this.currentPage = state.currentPage;
+    }
     this.fetchProjects();
   },
   methods: {
@@ -142,6 +149,12 @@ export default {
       this.$router.push('/projects/create');
     },
     viewProjectDetails(projectId) {
+      const state = {
+        searchQuery: this.searchQuery,
+        selectedYear: this.selectedYear,
+        currentPage: this.currentPage,
+      };
+      sessionStorage.setItem('projectsListState', JSON.stringify(state));
       this.$router.push(`/projects/${projectId}`);
     },
     getYearRange() {

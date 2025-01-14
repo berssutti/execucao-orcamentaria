@@ -1,23 +1,27 @@
 <template>
     <v-container>
       <v-card elevation="2" class="pa-4 project-card">
-        <v-card-title>
-          <h2>Detalhes do Projeto</h2>
-          <v-spacer></v-spacer>
-          <v-row>
-            <v-col>
-              <v-btn color="primary" @click="editProject">Editar Projeto</v-btn>
-              <v-btn class="ml-2" color="red" @click="deleteProject">Deletar Projeto</v-btn>
-              <v-btn class="ml-2" color="success" @click="openCreateModal">Adicionar Parcela</v-btn>
+        <v-card-title class="d-flex flex-column">
+          <h2 class="mb-2">Detalhes do Projeto</h2>
+          <v-divider class="mb-3"></v-divider>
+          <v-row align="center" justify="space-between">
+            <v-col cols="auto" class="d-flex gap-2">
+              <v-btn prepend-icon="mdi-pencil" color="primary" @click="editProject">
+                Editar
+              </v-btn>
+              <v-btn prepend-icon="mdi-delete" color="red" class="ml-2" @click="deleteProject">
+                Deletar
+              </v-btn>
             </v-col>
-            <v-col>
-              <v-btn rounded="xl" color="grey" @click="goBack">Voltar</v-btn>
+            <v-col cols="auto">
+              <v-btn prepend-icon="mdi-arrow-left" rounded="xl" color="grey" @click="goBack">
+                Voltar
+              </v-btn>
             </v-col>
           </v-row>
         </v-card-title>
 
         <v-card-text>
-
           <v-alert v-if="alertMessage" :type="alertType" dismissible>
             {{ alertMessage }}
           </v-alert>
@@ -103,6 +107,16 @@
           </v-row>
 
           <h3 class="section-title">Parcelas</h3>
+          <v-row align="center" justify="space-between">
+            <v-col cols="auto" class="d-flex gap-2">
+              <v-btn prepend-icon="mdi-plus" color="success" @click="openCreateModal">
+                Adicionar Parcela
+              </v-btn>
+              <v-btn prepend-icon="mdi-arrow-expand" color="primary" @click="openChartModal" class="ml-2">
+                Visualizar Gráfico
+              </v-btn>            
+            </v-col>
+          </v-row>
           <v-list v-if="installments.length > 0">
             <v-list-group v-for="(installment, index) in installments" :key="index" v-model:opened="installment.opened">
               <template v-slot:activator="{ props }">
@@ -175,8 +189,8 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn color="blue" @click="installmentModal = false">Cancelar</v-btn>
-                <v-btn color="green" :disabled="!valid" @click="saveInstallment">Salvar</v-btn>
+                <v-btn color="grey" @click="installmentModal = false">Cancelar</v-btn>
+                <v-btn color="primary" :disabled="!valid" @click="saveInstallment">Salvar</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -290,6 +304,9 @@ export default {
       };
       this.installmentModal = true;
     },
+    openChartModal() {
+      return
+    },
     async saveInstallment() {
       const projectId = this.$route.params.id;
       const method = this.isEditing ? 'PUT' : 'POST';
@@ -347,7 +364,7 @@ export default {
           method: 'DELETE',
         });
         if (response.ok) {
-          this.installments = this.installments.filter(inst => inst.id !== installmentId);  // Atualiza a lista
+          this.installments = this.installments.filter(inst => inst.id !== installmentId);
           
           this.alertMessage = 'Parcela deletada com sucesso';
           this.alertType = 'success';
@@ -368,7 +385,7 @@ export default {
           method: 'DELETE',
         });
         if (response.ok) {
-          this.$router.push('/projects');  // Redireciona para a lista de projetos após a exclusão
+          this.$router.push('/projects');
           this.alertMessage = 'Projeto deletado com sucesso!';
           this.alertType = 'success';
         } else {
