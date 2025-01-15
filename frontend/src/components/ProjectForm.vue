@@ -9,7 +9,7 @@
       <v-card-text>
         <v-form @submit.prevent="saveProject">
 
-          <h4 class="mb-3">Detalhes Gerais</h4>
+          <h4 class="mb-3">Informações Gerais</h4>
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
@@ -30,8 +30,27 @@
               ></v-text-field>
             </v-col>
           </v-row>
+    
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="project.processo_sei"
+                label="Processo SEI"
+                placeholder="*****.******/****-**"
+                :rules="[rules.required, rules.seiFormat]"
+                required
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-select
+                v-model="project.status"
+                :items="statusOptions"
+                label="Status"
+                @change="validateStatus"
+              ></v-select>
+            </v-col>
+          </v-row>
 
-          <h4 class="mb-3">Período</h4>
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
@@ -53,7 +72,37 @@
             </v-col>
           </v-row>
 
-          <h4 class="mb-3">Gerência</h4>
+          <div v-if="project.status === 'Recebido'">
+            <h4 class="mb-3">Célula Orçamentária</h4>
+            <v-row>
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="project.nota_dotacao"
+                  label="Nota de Dotação"
+                  :rules="[rules.required]"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="project.ptres"
+                  label="PTRES"
+                  :rules="[rules.required]"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="project.ugr"
+                  label="UGR"
+                  :rules="[rules.required]"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </div>
+
+          <h4 class="mb-3">Gestão</h4>
           <v-row>
             <v-col cols="12" md="4">
               <v-text-field
@@ -110,58 +159,8 @@
             </v-col>
           </v-row>
 
-          <h4 class="mb-3">Status</h4>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="project.processo_sei"
-                label="Processo SEI"
-                placeholder="*****.******/****-**"
-                :rules="[rules.required, rules.seiFormat]"
-                required
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-select
-                v-model="project.status"
-                :items="statusOptions"
-                label="Status"
-                @change="validateStatus"
-              ></v-select>
-            </v-col>
-          </v-row>
 
-          <div v-if="project.status === 'Recebido'">
-            <h4 class="mb-3">Célula Orçamentária</h4>
-            <v-row>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="project.nota_dotacao"
-                  label="Nota de Dotação"
-                  :rules="[rules.required]"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="project.ptres"
-                  label="PTRES"
-                  :rules="[rules.required]"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="project.ugr"
-                  label="UGR"
-                  :rules="[rules.required]"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </div>
-
-          <h4 class="mb-3">Áreas do Projeto</h4>
+          <h4 class="mb-3">Áreas</h4>
           <v-row v-for="(area, index) in project.areas" :key="index">
             <v-col cols="6">
               <v-select

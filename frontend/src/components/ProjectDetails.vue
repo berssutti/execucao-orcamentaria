@@ -22,7 +22,7 @@
         </v-card-title>
 
         <v-card-text>
-          <v-alert v-if="alertMessage" :type="alertType" dismissible>
+          <v-alert v-if="alertMessage" :type="alertType">
             {{ alertMessage }}
           </v-alert>
 
@@ -35,20 +35,22 @@
               <strong>Descrição:</strong> {{ project.description }}
             </v-col>
           </v-row>
-          <v-row>
-            <v-col cols="12" md="6">
-              <strong>Data de Início:</strong> {{ formatDate(project.start_date) }}
-            </v-col>
-            <v-col cols="12" md="6">
-              <strong>Data de Término:</strong> {{ formatDate(project.end_date) }}
-            </v-col>
-          </v-row>
+
           <v-row>
             <v-col cols="12" md="6">
               <strong>Processo SEI:</strong> {{ project.processo_sei }}
             </v-col>
             <v-col cols="12" md="6">
               <strong>Status:</strong> {{ project.status || 'N/A' }}
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <strong>Data de Início:</strong> {{ formatDate(project.start_date) }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <strong>Data de Término:</strong> {{ formatDate(project.end_date) }}
             </v-col>
           </v-row>
   
@@ -82,7 +84,7 @@
             </v-row>
           </template>
   
-          <h3 class="section-title">Custos</h3>
+          <h3 class="section-title">Orçamento</h3>
           <v-row>
             <v-col cols="12" md="6">
               <strong>Custos Indiretos UnB:</strong> R$ {{ project.total_unb_amount_expected }}
@@ -112,11 +114,12 @@
               <v-btn prepend-icon="mdi-plus" color="success" @click="openCreateModal">
                 Adicionar Parcela
               </v-btn>
-              <v-btn prepend-icon="mdi-arrow-expand" color="primary" @click="openChartModal" class="ml-2">
+              <v-btn prepend-icon="mdi-chart-bar-stacked" color="primary" @click="openChartModal" class="ml-2">
                 Visualizar Gráfico
               </v-btn>            
             </v-col>
           </v-row>
+
           <v-list v-if="installments.length > 0">
             <v-list-group v-for="(installment, index) in installments" :key="index" v-model:opened="installment.opened">
               <template v-slot:activator="{ props }">
@@ -132,7 +135,6 @@
                   </v-list-item-action>
                 </v-list-item>
               </template>
-
               <v-list-item v-if="expandedIndex === index">
                 <v-list-item-content>
                   <v-list-item-subtitle>
@@ -151,6 +153,7 @@
               </v-list-item>
             </v-list-group>
           </v-list>
+
           <v-row v-else>
             <v-col cols="12">
               <v-alert type="info" :value="true">
@@ -195,13 +198,32 @@
             </v-card>
           </v-dialog>
 
+          <v-dialog v-model="chartModal" max-width="800px">
+            <v-card>
+              <v-card-title class="d-flex justify-space-between">
+                <span class="headline">Gráfico de Barras Empilhadas</span>
+                <v-btn icon @click="chartModal = false">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-card-title>
+              <v-card-text>
+                <stacked-bar-chart v-if="installments.length > 0" :installments="installments" />
+              </v-card-text>
+            </v-card>
+          </v-dialog>
         </v-card-text>
       </v-card>
     </v-container>
+
 </template>
   
 <script>
+import StackedBarChart from "./testeChart.vue";
+
 export default {
+  components: {
+    StackedBarChart,
+  },
   name: 'ProjectDetails',
   data() {
     return {
@@ -221,12 +243,12 @@ export default {
         ptres: '',
         ugr: '',
         areas: [],
-        alertMessage: '',
-        alertType: '',
-
       },
+      alertMessage: '',
+      alertType: '',
       installments: [],
       installmentModal: false,
+      chartModal: false,
       isEditing: false,
       valid: false,
       installment: {
@@ -305,7 +327,12 @@ export default {
       this.installmentModal = true;
     },
     openChartModal() {
-      return
+      if (this.installments.length === 0) {
+        this.alertType = 'error';
+        this.alertMessage = 'Não há parcelas cadastradas para exibir no gráfico.';
+      } else {
+        this.chartModal = true;
+      }
     },
     async saveInstallment() {
       const projectId = this.$route.params.id;
@@ -337,14 +364,8 @@ export default {
 
         if (response.ok) {
           const data = await response.json();
-          if (this.isEditing) {
-            const index = this.installments.findIndex(inst => inst.id === data.id);
-            this.installments.splice(index, 1, data);
-          } else {
-            this.installments.push(data);
-          }
+          await this.fetchInstallments();
           this.installmentModal = false;
-          
           this.alertMessage = 'Parcela salva com sucesso!';
           this.alertType = 'success';
         } else {
@@ -386,8 +407,6 @@ export default {
         });
         if (response.ok) {
           this.$router.push('/projects');
-          this.alertMessage = 'Projeto deletado com sucesso!';
-          this.alertType = 'success';
         } else {
           this.alertMessage = 'Erro ao deletar projeto';
           this.alertType = 'error';
@@ -434,20 +453,6 @@ export default {
 
 .v-row {
   margin-bottom: 8px;
-}
-
-.v-expansion-panel-header {
-  font-weight: bold;
-  background-color: #f5f5f5;
-}
-
-.v-expansion-panel-content {
-  background-color: #f9f9f9;
-  padding: 16px;
-}
-
-.v-expansion-panel--active .v-expansion-panel-header {
-  background-color: #eeeeee;
 }
 
 </style>
