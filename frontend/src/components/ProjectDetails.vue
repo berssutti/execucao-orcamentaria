@@ -1,24 +1,28 @@
 <template>
     <v-container>
       <v-card elevation="2" class="pa-4 project-card">
-        <v-card-title>
-          <h2>Detalhes do Projeto</h2>
-          <v-spacer></v-spacer>
-          <v-row>
-            <v-col>
-              <v-btn color="primary" @click="editProject">Editar Projeto</v-btn>
-              <v-btn class="ml-2" color="red" @click="deleteProject">Deletar Projeto</v-btn>
-              <v-btn class="ml-2" color="success" @click="openCreateModal">Adicionar Parcela</v-btn>
+        <v-card-title class="d-flex flex-column">
+          <h2 class="mb-2">Detalhes do Projeto</h2>
+          <v-divider class="mb-3"></v-divider>
+          <v-row align="center" justify="space-between">
+            <v-col cols="auto" class="d-flex gap-2">
+              <v-btn prepend-icon="mdi-pencil" color="primary" @click="editProject">
+                Editar
+              </v-btn>
+              <v-btn prepend-icon="mdi-delete" color="red" class="ml-2" @click="deleteProject">
+                Deletar
+              </v-btn>
             </v-col>
-            <v-col>
-              <v-btn rounded="xl" color="grey" @click="goBack">Voltar</v-btn>
+            <v-col cols="auto">
+              <v-btn prepend-icon="mdi-arrow-left" rounded="xl" color="grey" @click="goBack">
+                Voltar
+              </v-btn>
             </v-col>
           </v-row>
         </v-card-title>
 
         <v-card-text>
-
-          <v-alert v-if="alertMessage" :type="alertType" dismissible>
+          <v-alert v-if="alertMessage" :type="alertType">
             {{ alertMessage }}
           </v-alert>
 
@@ -31,20 +35,22 @@
               <strong>Descrição:</strong> {{ project.description }}
             </v-col>
           </v-row>
-          <v-row>
-            <v-col cols="12" md="6">
-              <strong>Data de Início:</strong> {{ formatDate(project.start_date) }}
-            </v-col>
-            <v-col cols="12" md="6">
-              <strong>Data de Término:</strong> {{ formatDate(project.end_date) }}
-            </v-col>
-          </v-row>
+
           <v-row>
             <v-col cols="12" md="6">
               <strong>Processo SEI:</strong> {{ project.processo_sei }}
             </v-col>
             <v-col cols="12" md="6">
               <strong>Status:</strong> {{ project.status || 'N/A' }}
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <strong>Data de Início:</strong> {{ formatDate(project.start_date) }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <strong>Data de Término:</strong> {{ formatDate(project.end_date) }}
             </v-col>
           </v-row>
   
@@ -78,7 +84,7 @@
             </v-row>
           </template>
   
-          <h3 class="section-title">Custos</h3>
+          <h3 class="section-title">Orçamento</h3>
           <v-row>
             <v-col cols="12" md="6">
               <strong>Custos Indiretos UnB:</strong> R$ {{ project.total_unb_amount_expected }}
@@ -103,6 +109,17 @@
           </v-row>
 
           <h3 class="section-title">Parcelas</h3>
+          <v-row align="center" justify="space-between">
+            <v-col cols="auto" class="d-flex gap-2">
+              <v-btn prepend-icon="mdi-plus" color="success" @click="openCreateModal">
+                Adicionar Parcela
+              </v-btn>
+              <v-btn prepend-icon="mdi-chart-bar-stacked" color="primary" @click="openChartModal" class="ml-2">
+                Visualizar Gráfico
+              </v-btn>            
+            </v-col>
+          </v-row>
+
           <v-list v-if="installments.length > 0">
             <v-list-group v-for="(installment, index) in installments" :key="index" v-model:opened="installment.opened">
               <template v-slot:activator="{ props }">
@@ -118,7 +135,6 @@
                   </v-list-item-action>
                 </v-list-item>
               </template>
-
               <v-list-item v-if="expandedIndex === index">
                 <v-list-item-content>
                   <v-list-item-subtitle>
@@ -137,6 +153,7 @@
               </v-list-item>
             </v-list-group>
           </v-list>
+
           <v-row v-else>
             <v-col cols="12">
               <v-alert type="info" :value="true">
@@ -175,19 +192,38 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn color="blue" @click="installmentModal = false">Cancelar</v-btn>
-                <v-btn color="green" :disabled="!valid" @click="saveInstallment">Salvar</v-btn>
+                <v-btn color="grey" @click="installmentModal = false">Cancelar</v-btn>
+                <v-btn color="primary" :disabled="!valid" @click="saveInstallment">Salvar</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
 
+          <v-dialog v-model="chartModal" max-width="800px">
+            <v-card>
+              <v-card-title class="d-flex justify-space-between">
+                <span class="headline">Gráfico de Barras Empilhadas</span>
+                <v-btn icon @click="chartModal = false">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-card-title>
+              <v-card-text>
+                <stacked-bar-chart v-if="installments.length > 0" :installments="installments" />
+              </v-card-text>
+            </v-card>
+          </v-dialog>
         </v-card-text>
       </v-card>
     </v-container>
+
 </template>
   
 <script>
+import StackedBarChart from "./testeChart.vue";
+
 export default {
+  components: {
+    StackedBarChart,
+  },
   name: 'ProjectDetails',
   data() {
     return {
@@ -207,12 +243,12 @@ export default {
         ptres: '',
         ugr: '',
         areas: [],
-        alertMessage: '',
-        alertType: '',
-
       },
+      alertMessage: '',
+      alertType: '',
       installments: [],
       installmentModal: false,
+      chartModal: false,
       isEditing: false,
       valid: false,
       installment: {
@@ -290,6 +326,14 @@ export default {
       };
       this.installmentModal = true;
     },
+    openChartModal() {
+      if (this.installments.length === 0) {
+        this.alertType = 'error';
+        this.alertMessage = 'Não há parcelas cadastradas para exibir no gráfico.';
+      } else {
+        this.chartModal = true;
+      }
+    },
     async saveInstallment() {
       const projectId = this.$route.params.id;
       const method = this.isEditing ? 'PUT' : 'POST';
@@ -320,14 +364,8 @@ export default {
 
         if (response.ok) {
           const data = await response.json();
-          if (this.isEditing) {
-            const index = this.installments.findIndex(inst => inst.id === data.id);
-            this.installments.splice(index, 1, data);
-          } else {
-            this.installments.push(data);
-          }
+          await this.fetchInstallments();
           this.installmentModal = false;
-          
           this.alertMessage = 'Parcela salva com sucesso!';
           this.alertType = 'success';
         } else {
@@ -347,7 +385,7 @@ export default {
           method: 'DELETE',
         });
         if (response.ok) {
-          this.installments = this.installments.filter(inst => inst.id !== installmentId);  // Atualiza a lista
+          this.installments = this.installments.filter(inst => inst.id !== installmentId);
           
           this.alertMessage = 'Parcela deletada com sucesso';
           this.alertType = 'success';
@@ -368,9 +406,7 @@ export default {
           method: 'DELETE',
         });
         if (response.ok) {
-          this.$router.push('/projects');  // Redireciona para a lista de projetos após a exclusão
-          this.alertMessage = 'Projeto deletado com sucesso!';
-          this.alertType = 'success';
+          this.$router.push('/projects');
         } else {
           this.alertMessage = 'Erro ao deletar projeto';
           this.alertType = 'error';
@@ -417,20 +453,6 @@ export default {
 
 .v-row {
   margin-bottom: 8px;
-}
-
-.v-expansion-panel-header {
-  font-weight: bold;
-  background-color: #f5f5f5;
-}
-
-.v-expansion-panel-content {
-  background-color: #f9f9f9;
-  padding: 16px;
-}
-
-.v-expansion-panel--active .v-expansion-panel-header {
-  background-color: #eeeeee;
 }
 
 </style>

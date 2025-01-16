@@ -97,7 +97,7 @@ export default {
         const projectYearStart = new Date(project.start_date).getFullYear();
         const projectYearEnd = new Date(project.end_date).getFullYear();
         const isYearInRange =
-          (this.selectedYear >= projectYearStart && this.selectedYear <= projectYearEnd);
+          (Number(this.selectedYear) >= projectYearStart && Number(this.selectedYear) <= projectYearEnd);
         
         const isKeywordMatch = (project.description + project.name + project.coordinator + project.processo_sei)
           .toLowerCase()
@@ -116,6 +116,13 @@ export default {
     },
   },
   created() {
+    const savedState = sessionStorage.getItem('projectsListState');
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      this.searchQuery = state.searchQuery;
+      this.selectedYear = Number(state.selectedYear);
+      this.currentPage = state.currentPage;
+    }
     this.fetchProjects();
   },
   methods: {
@@ -142,6 +149,12 @@ export default {
       this.$router.push('/projects/create');
     },
     viewProjectDetails(projectId) {
+      const state = {
+        searchQuery: this.searchQuery,
+        selectedYear: this.selectedYear,
+        currentPage: this.currentPage,
+      };
+      sessionStorage.setItem('projectsListState', JSON.stringify(state));
       this.$router.push(`/projects/${projectId}`);
     },
     getYearRange() {
@@ -150,7 +163,7 @@ export default {
       let minStartYear = currentYear;
 
       this.projects.forEach(project => {
-        const projectEndDate = new Date(project.end_date + 'T00:00:00'); // add time to avoid timezone issues
+        const projectEndDate = new Date(project.end_date + 'T00:00:00'); 
         const projectStartDate = new Date(project.start_date + 'T00:00:00');
 
         const projectEndYear = projectEndDate.getFullYear();
