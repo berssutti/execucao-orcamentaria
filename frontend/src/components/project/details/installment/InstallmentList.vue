@@ -3,7 +3,7 @@
       <h3 class="section-title">Parcelas</h3>
       <v-row align="center" justify="space-between">
         <v-col cols="auto" class="d-flex gap-2">
-          <v-btn prepend-icon="mdi-plus" color="success" @click="$emit('create')">
+          <v-btn prepend-icon="mdi-plus" color="success" @click="$emit('add')">
             Adicionar Parcela
           </v-btn>
           <v-btn prepend-icon="mdi-chart-bar-stacked" color="primary" @click="$emit('view-chart')" class="ml-2">
@@ -57,8 +57,6 @@
   </template>
   
   <script>
-import { dateFormatter } from '@/utils/dateFormatter';
-
   export default {
     name: 'InstallmentList',
     props: {
@@ -66,15 +64,14 @@ import { dateFormatter } from '@/utils/dateFormatter';
         type: Array,
         required: true
       },
+      formatDate: {
+        type: Function,
+        required: true
+      },
       expandedIndex: {
         type: Number,
         default: null
       }
-    },
-    methods: {
-      formatDate(date) {
-        return dateFormatter(date);
-      },
     },
     emits: ['create', 'edit', 'delete', 'view-chart', 'toggle-details']
   };

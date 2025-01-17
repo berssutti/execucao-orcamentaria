@@ -5,6 +5,7 @@
                 :project="project"
                 @edit="handleEditProject"
                 @delete="handleDeleteProject"
+                @back="handleBack"
             />
 
             <ProjectInfo
@@ -24,15 +25,17 @@
             <InstallmentForm
                 v-model="showInstallmentForm"
                 :installment="currentInstallment"
+                :isEditing="isEditing"
                 @save="handleSaveInstallment"
+                @close="handleCloseInstallmentForm"
             />
         </v-card>
     </v-container>
 </template>
 
 <script>
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted  } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useProject } from '@/composables/useProject';
 import { useInstallments } from '@/composables/useInstallments';
 import { dateFormatter } from '@/utils/dateFormatter';
@@ -52,13 +55,57 @@ export default {
     },
 
     setup() {
-        const { project, loading: projectLoading, error: projectError, fetchProject } = useProject();
-        const { installments, loading: installmentsLoading, error: installmentsError, fetchInstallments } = useInstallments();
+        const { project, loading: projectLoading, error: projectError, fetchProject, deleteProject } = useProject();
+        const { installments, loading: installmentsLoading, error: installmentsError, fetchInstallments, createInstallment, deleteInstallment } = useInstallments();
         const route = useRoute();
+        const router = useRouter();
+
+        const showInstallmentForm = ref(false);
+        const currentInstallment = ref(null);
+        const isEditing = ref(false);
 
         const formatDate = (date) => {
             return dateFormatter(date);
         };
+
+        const handleBack = () => {
+            router.go(-1);
+        };
+
+        const handleDeleteProject = async () => {
+            try {
+                await deleteProject(project.value.id);
+                router.push({ name: 'ProjectList' });
+            } catch (error) {
+                // Add alert component
+                console.error('Erro ao deletar o projeto:', error);
+            }
+        };
+
+        const handleAddInstallment = () => {
+            currentInstallment.value = {};
+            isEditing.value = false;
+            showInstallmentForm.value = true;
+        };
+
+        const handleEditInstallment = (installment) => {
+            currentInstallment.value = { ...installment };
+            isEditing.value = false;
+            showInstallmentForm.value = true;
+        };
+
+        handleSaveInstallment = (installment) => {
+            if (isEditing.value) {
+                const index = installment.value.findIndex((i) => i.id === installment.id);
+                if (index !== -1) {
+                    installment.value[index] = { ...installment };
+                }
+            } else {
+                installments
+            }
+        }
+
+
 
         onMounted(async () => {
             const id = route.params.id;
@@ -73,7 +120,12 @@ export default {
             projectLoading,
             installments,
             installmentsLoading,
-            formatDate
+            formatDate,
+            handleBack,
+            handleDeleteProject,
+            handleAddInstallment,
+            showInstallmentForm,
+            currentInstallment,
         };
     },
 };

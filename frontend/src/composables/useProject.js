@@ -20,10 +20,25 @@ export function useProject() {
         }
     };
 
+    const deleteProject = async (id) => {
+        loading.value = true;
+
+        try {
+            await projectService.deleteProject(id);
+            project.value = null;
+        } catch(err) {
+            error.value = 'Erro ao deletar projeto';
+            console.error(err);
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         project,
         loading,
         error,
-        fetchProject
+        fetchProject,
+        deleteProject
     };
 }
