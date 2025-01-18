@@ -7,31 +7,37 @@
       <v-card-text>
         <v-form ref="form" v-model="valid">
           <v-text-field
-            v-model="installment.amount"
+            v-model="localInstallment.amount"
             label="Valor"
             :rules="[v => !!v || 'Campo obrigatório']"
             prefix="R$"
             type="number"
           />
           <v-text-field
-            v-model="installment.estimated_date"
+            v-model="localInstallment.estimated_date"
             label="Data Estimada"
             :rules="[v => !!v || 'Campo obrigatório']"
             type="date"
           />
-          <v-text-field v-model="installment.observation" label="Observação" />
-          <v-text-field v-model="installment.destination" label="Destino" />
+          <v-text-field
+            v-model="localInstallment.observation"
+            label="Observação"
+          />
+          <v-text-field
+            v-model="localInstallment.destination"
+            label="Destino"
+          />
 
           <v-select
-            v-model="installment.status"
+            v-model="localInstallment.status"
             :items="statusOptions"
             label="Status"
             :rules="[v => !!v || 'Campo obrigatório']"
           />
 
           <v-text-field
-            v-if="installment.status === 'Quitada'"
-            v-model="installment.effective_date"
+            v-if="localInstallment.status === 'Quitada'"
+            v-model="localInstallment.effective_date"
             label="Data Efetiva"
             :rules="[v => !!v || 'Campo obrigatório']"
             type="date"
@@ -48,7 +54,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, reactive } from 'vue';
 
 export default {
   name: 'InstallmentForm',
@@ -65,50 +71,46 @@ export default {
       type: Boolean,
       required: true,
     },
-    statusOptions: {
-      type: Array,
-      required: true,
-    },
-    valid: {
-      type: Boolean,
-      required: true,
-    },
   },
   emits: ['update:modelValue', 'save', 'close'],
   setup(props, { emit }) {
     const form = ref(null);
     const valid = ref(false);
+    const statusOptions = ref(['Atrasada', 'Quitada', 'Pendente']);
+    const localInstallment = reactive({ ...props.installment });
 
     const updateModelValue = (value) => {
       emit('update:modelValue', value);
     };
 
     const cancel = () => {
+      Object.assign(localInstallment, props.installment);
       form.value?.resetValidation();
       emit('close');
     };
 
     const save = () => {
       if (valid.value) {
-        emit('save', props.installment);
+        emit('save', { ...localInstallment });
       }
     };
 
-    // Sync prop `valid` with internal `valid` state
     watch(
-      () => props.valid,
-      (newValue) => {
-        valid.value = newValue;
+      () => props.installment,
+      (newInstallment) => {
+        Object.assign(localInstallment, newInstallment);
       },
-      { immediate: true }
+      { immediate: true, deep: true }
     );
 
     return {
       form,
       valid,
+      localInstallment,
       updateModelValue,
       cancel,
       save,
+      statusOptions,
     };
   },
 };

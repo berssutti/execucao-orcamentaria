@@ -16,10 +16,11 @@
 
             <InstallmentList
                 :installments="installments"
-                :loading="installmentsLoading"
+                :formatDate="formatDate"
                 @add="handleAddInstallment"
                 @edit="handleEditInstallment"
                 @delete="handleDeleteInstallment"
+                @toggle-details="handleToggleDetails"
             />
 
             <InstallmentForm
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-import { ref, onMounted  } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProject } from '@/composables/useProject';
 import { useInstallments } from '@/composables/useInstallments';
@@ -55,8 +56,8 @@ export default {
     },
 
     setup() {
-        const { project, loading: projectLoading, error: projectError, fetchProject, deleteProject } = useProject();
-        const { installments, loading: installmentsLoading, error: installmentsError, fetchInstallments, createInstallment, deleteInstallment } = useInstallments();
+        const { project, loading: projectLoading, fetchProject, deleteProject } = useProject();
+        const { installments, loading: installmentsLoading, fetchInstallments, createInstallment, updateInstallment, deleteInstallment } = useInstallments();
         const route = useRoute();
         const router = useRouter();
 
@@ -64,55 +65,76 @@ export default {
         const currentInstallment = ref(null);
         const isEditing = ref(false);
 
-        const formatDate = (date) => {
-            return dateFormatter(date);
-        };
+        const formatDate = (date) => dateFormatter(date);
 
-        const handleBack = () => {
-            router.go(-1);
-        };
+        const handleBack = () => router.go(-1);
 
         const handleDeleteProject = async () => {
+            // TODO: Add alert to confirm deletion
+            // TODO: Add dialog of success or error on deletion
             try {
                 await deleteProject(project.value.id);
                 router.push({ name: 'ProjectList' });
             } catch (error) {
-                // Add alert component
                 console.error('Erro ao deletar o projeto:', error);
             }
         };
 
         const handleAddInstallment = () => {
-            currentInstallment.value = {};
+            currentInstallment.value = {
+                amount: '',
+                estimated_date: null,
+                observation: '',
+                destination: '',
+                status: 'Pendente',
+                effective_date: null
+            };
             isEditing.value = false;
             showInstallmentForm.value = true;
         };
 
         const handleEditInstallment = (installment) => {
             currentInstallment.value = { ...installment };
-            isEditing.value = false;
+            isEditing.value = true;
             showInstallmentForm.value = true;
         };
 
-        handleSaveInstallment = (installment) => {
-            if (isEditing.value) {
-                const index = installment.value.findIndex((i) => i.id === installment.id);
-                if (index !== -1) {
-                    installment.value[index] = { ...installment };
-                }
-            } else {
-                installments
+        const handleSaveInstallment = async (installment) => {
+            // TODO: Add dialog of success or error on save (edit or create)
+            try {
+                installment.project = project.value.id;
+                isEditing.value 
+                    ? await updateInstallment(project.value.id, currentInstallment.value.id, installment) 
+                    : await createInstallment(project.value.id, installment);
+
+                await fetchInstallments(project.value.id);
+
+                handleCloseInstallmentForm();
+            } catch (error) {
+                console.error('Erro ao salvar a parcela:', error);
             }
-        }
+        };
 
+        const handleDeleteInstallment = (installmentId) => {
+            // TODO: Add alert to confirm deletion
+            // TODO: Add dialog of success or error on deletion
+            deleteInstallment(project.value.id, installmentId);            
+        };
 
+        const handleCloseInstallmentForm = () => {
+            showInstallmentForm.value = false;
+            currentInstallment.value = null;
+            isEditing.value = false;
+        };
 
         onMounted(async () => {
+            // TODO: pick the project.id from a prop comming from project list
             const id = route.params.id;
-            await Promise.all([
-                fetchProject(id),
-                fetchInstallments(id)
-            ]);
+            try {
+                await Promise.all([fetchProject(id), fetchInstallments(id)]);
+            } catch (error) {
+                console.error('Erro ao carregar o projeto ou as parcelas:', error);
+            }
         });
 
         return {
@@ -124,18 +146,22 @@ export default {
             handleBack,
             handleDeleteProject,
             handleAddInstallment,
+            handleEditInstallment,
+            handleSaveInstallment,
+            handleDeleteInstallment,
+            handleCloseInstallmentForm,
             showInstallmentForm,
             currentInstallment,
+            isEditing
         };
-    },
+    }
 };
 </script>
-<styles>
 
+<style scoped>
 .project-card {
-  max-width: 800px;
-  margin: 20px auto;
-  border-radius: 8px;
+    max-width: 800px;
+    margin: 20px auto;
+    border-radius: 8px;
 }
-
-</styles>
+</style>

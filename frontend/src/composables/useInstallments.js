@@ -8,7 +8,6 @@ export function useInstallments() {
 
     const fetchInstallments = async (projectId) => {
         loading.value = true;
-        error.value = null;
 
         try {
             const response = await installmentService.getProjectInstallments(projectId);
@@ -23,13 +22,24 @@ export function useInstallments() {
 
     const createInstallment = async (projectId, data) => {
         loading.value = true;
-        error.value = null;
 
         try {
-            const response = await installmentService.createInstallment(projectId, data);
-            installments.value = response.data;
+            await installmentService.createInstallment(projectId, data);
         } catch(err) {
             error.value = 'Erro ao criar parcela';
+            console.error(err);
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const updateInstallment = async (projectId, installmentId, data) => {
+        loading.value = true;
+
+        try {
+            await installmentService.updateInstallment(projectId, installmentId, data);
+        } catch(err) {
+            error.value = 'Erro ao atualizar parcela';
             console.error(err);
         } finally {
             loading.value = false;
@@ -38,11 +48,10 @@ export function useInstallments() {
     
     const deleteInstallment = async (projectId, installmentId) => {
         loading.value = true;
-        error.value = null;
 
         try {
-            const response = await installmentService.deleteInstallment(projectId, installmentId);
-            installments.value = null;
+            await installmentService.deleteInstallment(projectId, installmentId);
+            installments.value = installments.value.filter(installment => installment.id !== installmentId);
         } catch(err) {
             error.value = 'Erro ao deletar parcela';
             console.error(err);
@@ -57,6 +66,7 @@ export function useInstallments() {
         error,
         fetchInstallments,
         createInstallment,
+        updateInstallment,
         deleteInstallment
     };
 }
