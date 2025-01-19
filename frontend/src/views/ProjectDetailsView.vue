@@ -114,7 +114,7 @@ export default {
 
         const formatDate = (date) => dateFormatter(date);
 
-        const handleBack = () => router.go(-1);
+        const handleBack = () => router.push({ name: 'ProjectList' });
         
         const showSnackbar = (text, color = 'success') => {
             snackbar.value = {
@@ -133,6 +133,10 @@ export default {
                 console.error('Erro ao deletar o projeto:', error);
                 showSnackbar('Erro ao excluir o projeto', 'error');
             }
+        };
+
+        const handleEditProject = () => {
+            router.push({ name: 'ProjectEdit', params: { id: project.value.id } });
         };
 
         const handleShowDeleteInstallmentDialog = (installmentId) => {
@@ -239,6 +243,7 @@ export default {
             handleCloseInstallmentForm,
             handleProjectInstallmentChart,
             handleCloseProjectInstallmentChart,
+            handleEditProject,
         };
     }
 };

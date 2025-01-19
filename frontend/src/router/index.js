@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import ProjectForm from '@/components/ProjectForm.vue';
+// import ProjectForm from '@/components/ProjectForm.vue';
+import ProjectForm from '@/components/project/form/ProjectForm.vue';
+
 import ProjectList from '@/components/ProjectList.vue';
 // import ProjectDetails from '@/components/ProjectDetails.vue';
 import ProjectDetails from '@/views/ProjectDetailsView.vue';
