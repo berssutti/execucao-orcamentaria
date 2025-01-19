@@ -77,7 +77,7 @@ export default defineComponent({
     const expandedIndex = ref(null);
 
     const emitAdd = () => emit('add');
-    const emitViewChart = () => emit('view-chart');
+    const emitViewChart = () => emit('chart');
     const emitEdit = (installment) => emit('edit', installment);
     const emitDelete = (id) => emit('delete', id);
     

@@ -1,6 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue" @update:model-value="updateModelValue" max-width="500px">
-    <v-card>
+    <v-card class="rounded-lg">
       <v-card-title>
         <span class="headline">{{ isEditing ? 'Editar Parcela' : 'Adicionar Parcela' }}</span>
       </v-card-title>

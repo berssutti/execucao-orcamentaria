@@ -4,7 +4,7 @@
             <ProjectHeader
                 :project="project"
                 @edit="handleEditProject"
-                @delete="handleDeleteProject"
+                @delete="showDeleteProjectDialog = true"
                 @back="handleBack"
             />
 
@@ -19,7 +19,8 @@
                 :formatDate="formatDate"
                 @add="handleAddInstallment"
                 @edit="handleEditInstallment"
-                @delete="handleDeleteInstallment"
+                @delete="handleShowDeleteInstallmentDialog"
+                @chart="handleProjectInstallmentChart"
                 @toggle-details="handleToggleDetails"
             />
 
@@ -29,6 +30,37 @@
                 :isEditing="isEditing"
                 @save="handleSaveInstallment"
                 @close="handleCloseInstallmentForm"
+            />
+
+            <ProjectInstallmentChart 
+                v-model="showProjectInstallmentChart"
+                v-if="installments.length > 0"
+                :installments="installments"
+                @close="handleCloseProjectInstallmentChart"
+            />
+
+            <ConfirmDialog
+                v-model="showDeleteProjectDialog"
+                title="Confirmar Exclusão de Projeto"
+                message="Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita."
+                confirm-text="Excluir"
+                confirm-color="red darken-1"
+                @confirm="confirmDeleteProject"
+            />
+
+            <ConfirmDialog
+                v-model="showDeleteInstallmentDialog"
+                title="Confirmar Exclusão de Parcela"
+                message="Tem certeza que deseja excluir esta parcela? Esta ação não pode ser desfeita."
+                confirm-text="Excluir"
+                confirm-color="red darken-1"
+                @confirm="confirmDeleteInstallment"
+            />
+
+            <FeedbackSnackbar
+                v-model="snackbar.show"
+                :message="snackbar.text"
+                :color="snackbar.color"
             />
         </v-card>
     </v-container>
@@ -44,6 +76,9 @@ import ProjectHeader from '@/components/project/details/ProjectHeader.vue';
 import ProjectInfo from '@/components/project/details/ProjectInfo.vue';
 import InstallmentList from '@/components/project/details/installment/InstallmentList.vue';
 import InstallmentForm from '@/components/project/details/installment/InstallmentForm.vue';
+import ProjectInstallmentChart from '@/components/project/details/installment/ProjectInstallmentChart.vue';
+import ConfirmDialog from '@/components/shared/ConfirmDialog.vue';
+import FeedbackSnackbar from '@/components/shared/FeedbackSnackbar.vue';
 
 export default {
     name: 'ProjectDetailsView',
@@ -52,7 +87,10 @@ export default {
         ProjectHeader,
         ProjectInfo,
         InstallmentList,
-        InstallmentForm
+        InstallmentForm,
+        ProjectInstallmentChart,
+        ConfirmDialog,
+        FeedbackSnackbar,
     },
 
     setup() {
@@ -62,23 +100,59 @@ export default {
         const router = useRouter();
 
         const showInstallmentForm = ref(false);
+        const showProjectInstallmentChart = ref(false);
         const currentInstallment = ref(null);
         const isEditing = ref(false);
+        const showDeleteProjectDialog = ref(false);
+        const showDeleteInstallmentDialog = ref(false);
+        const installmentToDelete = ref(null);
+        const snackbar = ref({
+            show: false,
+            text: '',
+            color: 'success'
+        });
 
         const formatDate = (date) => dateFormatter(date);
 
         const handleBack = () => router.go(-1);
+        
+        const showSnackbar = (text, color = 'success') => {
+            snackbar.value = {
+                show: true,
+                text,
+                color
+            };
+        };
 
-        const handleDeleteProject = async () => {
-            // TODO: Add alert to confirm deletion
-            // TODO: Add dialog of success or error on deletion
+        const confirmDeleteProject = async () => {
             try {
                 await deleteProject(project.value.id);
+                showSnackbar('Projeto excluído com sucesso');
                 router.push({ name: 'ProjectList' });
             } catch (error) {
                 console.error('Erro ao deletar o projeto:', error);
+                showSnackbar('Erro ao excluir o projeto', 'error');
             }
         };
+
+        const handleShowDeleteInstallmentDialog = (installmentId) => {
+            installmentToDelete.value = installmentId;
+            showDeleteInstallmentDialog.value = true;
+        };
+
+        const confirmDeleteInstallment = async () => {
+            try {
+                await deleteInstallment(project.value.id, installmentToDelete.value);
+                showSnackbar('Parcela excluída com sucesso');
+                await fetchInstallments(project.value.id);
+            } catch (error) {
+                console.error('Erro ao deletar a parcela:', error);
+                showSnackbar('Erro ao excluir a parcela', 'error');
+            } finally {
+                installmentToDelete.value = null;
+            }
+        };
+
 
         const handleAddInstallment = () => {
             currentInstallment.value = {
@@ -100,25 +174,22 @@ export default {
         };
 
         const handleSaveInstallment = async (installment) => {
-            // TODO: Add dialog of success or error on save (edit or create)
             try {
                 installment.project = project.value.id;
-                isEditing.value 
-                    ? await updateInstallment(project.value.id, currentInstallment.value.id, installment) 
-                    : await createInstallment(project.value.id, installment);
-
+                if (isEditing.value) {
+                    await updateInstallment(project.value.id, currentInstallment.value.id, installment);
+                    showSnackbar('Parcela atualizada com sucesso');
+                } else {
+                    await createInstallment(project.value.id, installment);
+                    showSnackbar('Parcela criada com sucesso');
+                }
+                
                 await fetchInstallments(project.value.id);
-
                 handleCloseInstallmentForm();
             } catch (error) {
                 console.error('Erro ao salvar a parcela:', error);
+                showSnackbar('Erro ao salvar a parcela', 'error');
             }
-        };
-
-        const handleDeleteInstallment = (installmentId) => {
-            // TODO: Add alert to confirm deletion
-            // TODO: Add dialog of success or error on deletion
-            deleteInstallment(project.value.id, installmentId);            
         };
 
         const handleCloseInstallmentForm = () => {
@@ -127,13 +198,21 @@ export default {
             isEditing.value = false;
         };
 
+        const handleProjectInstallmentChart = () => {
+            showProjectInstallmentChart.value = true;
+        }
+
+        const handleCloseProjectInstallmentChart = () => {
+            showProjectInstallmentChart.value = false;
+        }
+
         onMounted(async () => {
-            // TODO: pick the project.id from a prop comming from project list
             const id = route.params.id;
             try {
                 await Promise.all([fetchProject(id), fetchInstallments(id)]);
             } catch (error) {
                 console.error('Erro ao carregar o projeto ou as parcelas:', error);
+                showSnackbar('Erro ao carregar dados do projeto', 'error');
             }
         });
 
@@ -144,15 +223,22 @@ export default {
             installmentsLoading,
             formatDate,
             handleBack,
-            handleDeleteProject,
+            showInstallmentForm,
+            showProjectInstallmentChart,
+            currentInstallment,
+            isEditing,
+            showDeleteProjectDialog,
+            showDeleteInstallmentDialog,
+            snackbar,
             handleAddInstallment,
             handleEditInstallment,
             handleSaveInstallment,
-            handleDeleteInstallment,
+            handleShowDeleteInstallmentDialog,
+            confirmDeleteProject,
+            confirmDeleteInstallment,
             handleCloseInstallmentForm,
-            showInstallmentForm,
-            currentInstallment,
-            isEditing
+            handleProjectInstallmentChart,
+            handleCloseProjectInstallmentChart,
         };
     }
 };
