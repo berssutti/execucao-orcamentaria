@@ -19,13 +19,21 @@
             :rules="[v => !!v || 'Campo obrigatório']"
             type="date"
           />
-          <v-text-field
+          <v-textarea
             v-model="localInstallment.observation"
             label="Observação"
+            rows="1"
+            auto-grow
+            counter
+            maxlength="200"
           />
-          <v-text-field
+          <v-textarea
             v-model="localInstallment.destination"
             label="Destino"
+            rows="1"
+            auto-grow
+            counter
+            maxlength="200"
           />
 
           <v-select

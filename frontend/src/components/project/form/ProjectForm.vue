@@ -14,19 +14,27 @@
                 <v-text-field
                     v-model="project.name"
                     label="Nome do Projeto"
-                    :rules="[rules.required, rules.maxLength(200)]"
+                    counter
+                    maxlength="100"
+                    :rules="[rules.required, rules.maxLength(100)]"
                     placeholder="Digite o nome do projeto"
+                    prepend-inner-icon="mdi-file-document-outline"
                     required
                 ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                <v-text-field
+                <v-textarea
                     v-model="project.description"
                     label="Descrição"
                     :rules="[rules.required, rules.maxLength(200)]"
                     placeholder="Descreva brevemente o projeto"
+                    prepend-inner-icon="mdi-text-box-outline"
+                    rows="1"
+                    auto-grow
+                    counter
+                    maxlength="200"
                     required
-                ></v-text-field>
+                ></v-textarea>
                 </v-col>
             </v-row>
         
@@ -37,6 +45,7 @@
                     label="Processo SEI"
                     placeholder="*****.******/****-**"
                     :rules="[rules.required, rules.seiFormat]"
+                    prepend-inner-icon="mdi-file-document-multiple-outline"
                     required
                 ></v-text-field>
                 </v-col>
@@ -45,6 +54,7 @@
                     v-model="project.status"
                     :items="statusOptions"
                     label="Status"
+                    prepend-inner-icon="mdi-flag-outline"
                     @change="validateStatus"
                 ></v-select>
                 </v-col>
@@ -56,6 +66,7 @@
                     v-model="project.start_date"
                     label="Data de Início"
                     type="date"
+                    prepend-inner-icon="mdi-calendar-start"
                     :rules="[rules.required]"
                     required
                 ></v-text-field>
@@ -65,6 +76,7 @@
                     v-model="project.end_date"
                     label="Data de Término"
                     type="date"
+                    prepend-inner-icon="mdi-calendar-end"
                     :rules="[rules.required]"
                     required
                 ></v-text-field>
@@ -78,6 +90,7 @@
                     <v-text-field
                     v-model="project.nota_dotacao"
                     label="Nota de Dotação"
+                    prepend-inner-icon="mdi-note-text-outline"
                     :rules="[rules.required]"
                     required
                     ></v-text-field>
@@ -86,6 +99,7 @@
                     <v-text-field
                     v-model="project.ptres"
                     label="PTRES"
+                    prepend-inner-icon="mdi-identifier"
                     :rules="[rules.required]"
                     required
                     ></v-text-field>
@@ -94,6 +108,7 @@
                     <v-text-field
                     v-model="project.ugr"
                     label="UGR"
+                    prepend-inner-icon="mdi-office-building-outline"
                     :rules="[rules.required]"
                     required
                     ></v-text-field>
@@ -108,7 +123,10 @@
                     v-model="project.coordinator"
                     label="Coordenador"
                     :rules="[rules.required, rules.maxLength(100)]"
+                    prepend-inner-icon="mdi-account-tie"
                     placeholder="Nome do coordenador"
+                    counter
+                    maxlength="100"
                     required
                 ></v-text-field>
                 </v-col>
@@ -118,6 +136,9 @@
                     label="Coordenador Substituto"
                     :rules="[rules.required, rules.maxLength(100)]"
                     placeholder="Nome do coordenador substituto"
+                    prepend-inner-icon="mdi-account-switch"
+                    counter
+                    maxlength="100"
                     required
                 ></v-text-field>
                 </v-col>
@@ -127,6 +148,9 @@
                     label="Supervisor Acadêmico"
                     :rules="[rules.required, rules.maxLength(100)]"
                     placeholder="Nome do supervisor acadêmico"
+                    prepend-inner-icon="mdi-school"
+                    counter
+                    maxlength="100"
                     required
                 ></v-text-field>
                 </v-col>
@@ -141,6 +165,7 @@
                     type="number"
                     prefix="R$"
                     :rules="[rules.required, rules.positive]"
+                    prepend-inner-icon="mdi-cash-multiple"
                     placeholder="Valor esperado para UnB"
                     required
                 ></v-text-field>
@@ -152,6 +177,7 @@
                     type="number"
                     prefix="R$"
                     :rules="[rules.required, rules.positive]"
+                    prepend-inner-icon="mdi-cash-multiple"
                     placeholder="Valor esperado para FCTE"
                     required
                 ></v-text-field>
@@ -168,19 +194,20 @@
                     item-title="name"
                     item-value="id"
                     label="Área"
+                    prepend-inner-icon="mdi-shape-outline"
                     :rules="[rules.required]"
                     required
                 ></v-select>
                 </v-col>
                 <v-col cols="4">
-                <v-text-field
-                    v-model.number="area.percentage"
-                    label="Porcentagem"
-                    type="number"
-                    suffix="%"
-                    :rules="[rules.required, rules.percentage]"
-                    required
-                ></v-text-field>
+                  <v-text-field
+                      v-model.number="area.percentage"
+                      label="Porcentagem"
+                      type="number"
+                      suffix="%"
+                      :rules="[rules.required, rules.percentage]"
+                      required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="2" class="text-center">
                 <v-btn icon color="red" @click="removeArea(index)">
