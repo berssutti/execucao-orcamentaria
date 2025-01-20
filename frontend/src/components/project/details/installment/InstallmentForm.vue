@@ -23,8 +23,8 @@
             v-model="localInstallment.observation"
             label="Observação"
             rows="1"
-            auto-grow
             counter
+            auto-grow
             maxlength="200"
           />
           <v-textarea
