@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h4 class="mb-3"><v-icon>mdi-account-tie</v-icon>Gestão</h4>
+      <h4 class="mb-3"><v-icon class="mr-1">mdi-account-tie</v-icon>Gestão</h4>
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field

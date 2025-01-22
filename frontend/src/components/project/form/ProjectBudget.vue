@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h4 class="mb-3"><v-icon>mdi-cash-multiple</v-icon>Orçamento</h4>
+      <h4 class="mb-3"><v-icon class="mr-1">mdi-cash-multiple</v-icon>Orçamento</h4>
       <v-row>
         <v-col cols="12" md="6">
           <v-text-field

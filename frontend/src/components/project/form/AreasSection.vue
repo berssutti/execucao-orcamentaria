@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h4 class="mb-3"><v-icon>mdi-shape-outline</v-icon>Áreas</h4>
+      <h4 class="mb-3"><v-icon class="mr-1">mdi-shape-outline</v-icon>Áreas</h4>
       <v-row v-for="(area, index) in areas" :key="index">
         <v-col cols="6">
           <v-select

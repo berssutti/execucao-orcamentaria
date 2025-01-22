@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h4 icon="mdi-file-document-multiple-outline" class="mb-3"><v-icon>mdi-file-document-multiple-outline</v-icon>Informações Gerais</h4>
+      <h4 icon="mdi-file-document-multiple-outline" class="mb-3"><v-icon class="mr-1">mdi-file-document-multiple-outline</v-icon>Informações Gerais</h4>
       <v-row>
         <v-col cols="12" md="6">
           <v-text-field

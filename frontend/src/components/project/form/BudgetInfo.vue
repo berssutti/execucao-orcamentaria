@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h4 class="mb-3"><v-icon>mdi-note-text-outline</v-icon>Célula Orçamentária</h4>
+      <h4 class="mb-3"><v-icon class="mr-1">mdi-note-text-outline</v-icon>Célula Orçamentária</h4>
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
