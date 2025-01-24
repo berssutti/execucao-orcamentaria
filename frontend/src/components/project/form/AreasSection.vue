@@ -29,7 +29,7 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-btn color="secondary" @click="$emit('add-area')" class="mb-4" prepend-icon="mdi-plus">
+      <v-btn color="success" @click="$emit('add-area')" class="mb-4" prepend-icon="mdi-plus">
         Adicionar Área
       </v-btn>
     </div>

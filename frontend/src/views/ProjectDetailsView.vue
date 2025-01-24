@@ -203,6 +203,10 @@ export default {
         };
 
         const handleProjectInstallmentChart = () => {
+            if(installments.value.length === 0) {
+                showSnackbar('Não há parcelas para exibir no gráfico', 'warning');
+                return;
+            }
             showProjectInstallmentChart.value = true;
         }
 

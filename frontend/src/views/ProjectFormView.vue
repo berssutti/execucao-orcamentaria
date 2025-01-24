@@ -30,6 +30,12 @@
             <ActionButtons @cancel="$router.back()" @save="saveProject" />
           </v-form>
         </v-card-text>
+        <FeedbackSnackbar
+          v-model="snackbar.show"
+          :message="snackbar.text"
+          :color="snackbar.color"
+        />
+
       </v-card>
     </v-container>
   </template>
@@ -44,6 +50,7 @@
   import ProjectBudget from '@/components/project/form/ProjectBudget.vue';
   import AreasSection from '@/components/project/form/AreasSection.vue';
   import ActionButtons from '@/components/project/form/ActionButtons.vue';
+  import FeedbackSnackbar from '@/components/shared/FeedbackSnackbar.vue';
   
   const props = defineProps({
     id: String
@@ -74,7 +81,12 @@
   const areaList = ref([]);
   const statusOptions = ref(['Processando', 'Recebido']);
   const isEditing = ref(false);
-  
+  const snackbar = ref({
+            show: false,
+            text: '',
+            color: 'success'
+        });
+
 
   const rules = {
     required: (value) => !!value || 'Campo obrigatório.',
@@ -84,6 +96,15 @@
       'Formato inválido. Use: *****.******/****-**',
     percentage: (value) => value >= 0 && value <= 100 || 'A porcentagem deve estar entre 0 e 100.',
   };
+
+  const showSnackbar = (text, color = 'success') => {
+            snackbar.value = {
+                show: true,
+                text,
+                color
+            };
+        };
+
   
   const filteredAreaList = (index) => {
     const selectedAreas = project.value.areas
@@ -95,7 +116,7 @@
   const fetchProjectDetails = async () => {
     if (props.id) {
       await fetchProject(props.id);
-      console.log('projectData:', projectData.value);
+
       if (projectData.value) {
         project.value = {
           ...projectData.value,
@@ -145,31 +166,17 @@
     return totalPercentage === 100;
   };
   
-  const validateStatus = () => {
-    if (
-      project.value.status === 'Recebido' &&
-      (!project.value.nota_dotacao || !project.value.ptres || !project.value.ugr)
-    ) {
-      alert(
-        'Para alterar o status para "Recebido", é necessário preencher os campos Nota de Dotação, PTRES e UGR.'
-      );
-      project.value.status = 'Processando';
-    }
-  };
-  
   const saveProject = async () => {
     try {
       if (
         project.value.status === 'Recebido' &&
         (!project.value.nota_dotacao || !project.value.ptres || !project.value.ugr)
       ) {
-        alert(
-          'Para salvar com o status "Recebido", preencha os campos Nota de Dotação, PTRES e UGR.'
-        );
+        showSnackbar('Para salvar com o status "Recebido", preencha os campos Nota de Dotação, PTRES e UGR.', 'error');
         return;
       }
       if (!validadePercentage()) {
-        alert('A soma das porcentagens das áreas deve ser 100%');
+        showSnackbar('A soma das porcentagens das áreas deve ser 100%', 'error');
         return;
       }
   
@@ -195,14 +202,12 @@
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Erro ao salvar projeto:', errorData);
-        throw new Error('Erro ao salvar projeto');
       }
   
       const projectData = await response.json();
       router.push(`/projects/${isEditing.value ? props.id : projectData.id}`);
     } catch (error) {
       console.error('Erro:', error);
-      alert('Ocorreu um erro ao salvar o projeto. Tente novamente.');
     }
   };
   

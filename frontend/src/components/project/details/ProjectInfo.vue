@@ -1,6 +1,6 @@
 <template>
   <v-card-text>
-    <h3 class="section-title">Informações Gerais</h3>
+    <h3 class="section-title"><v-icon class="mr-1">mdi-file-document-multiple-outline</v-icon>Informações Gerais</h3>
     <v-row>
       <v-col cols="12" md="6">
         <strong>Nome:</strong> {{ project.name }}
@@ -28,7 +28,7 @@
       </v-col>
     </v-row>
 
-    <h3 class="section-title">Gestão</h3>
+    <h3 class="section-title"><v-icon class="mr-1">mdi-account-tie</v-icon>Gestão</h3>
     <v-row>
       <v-col cols="12" md="6">
         <strong>Coordenador:</strong> {{ project.coordinator }}
@@ -44,7 +44,7 @@
     </v-row>
 
     <template v-if="project.status === 'Recebido'">
-      <h3 class="section-title">Célula Orçamentária</h3>
+      <h3 class="section-title"><v-icon class="mr-1">mdi-note-text-outline</v-icon>Célula Orçamentária</h3>
       <v-row>
         <v-col cols="12" md="4">
           <strong>Nota de Dotação:</strong> {{ project.nota_dotacao }}
@@ -58,7 +58,7 @@
       </v-row>
     </template>
 
-    <h3 class="section-title">Orçamento</h3>
+    <h3 class="section-title"><v-icon class="mr-1">mdi-cash-multiple</v-icon>Orçamento</h3>
     <v-row>
       <v-col cols="12" md="6">
         <strong>Custos Indiretos UnB:</strong> R$ {{ project.total_unb_amount_expected }}
@@ -68,7 +68,7 @@
       </v-col>
     </v-row>
 
-    <h3 class="section-title">Áreas</h3>
+    <h3 class="section-title"><v-icon class="mr-1">mdi-shape-outline</v-icon>Áreas</h3>
     <v-row>
       <v-col cols="12">
         <v-chip

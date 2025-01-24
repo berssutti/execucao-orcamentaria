@@ -150,7 +150,7 @@
   };
   
   const goToCreateProject = () => {
-    router.push('/projects/create');
+    router.push({ name: 'ProjectCreate'}); 
   };
   
   const viewProjectDetails = (projectId) => {
