@@ -61,10 +61,10 @@
     <h3 class="section-title"><v-icon class="mr-1">mdi-cash-multiple</v-icon>Orçamento</h3>
     <v-row>
       <v-col cols="12" md="6">
-        <strong>Custos Indiretos UnB:</strong> R$ {{ project.total_unb_amount_expected }}
+        <strong>Custos Indiretos UnB:</strong> R$ {{ formatNumber(project.total_unb_amount_expected) }}
       </v-col>
       <v-col cols="12" md="6">
-        <strong>Custos Indiretos FCTE:</strong> R$ {{ project.total_fcte_amount_expected }}
+        <strong>Custos Indiretos FCTE:</strong> R$ {{ formatNumber(project.total_fcte_amount_expected) }}
       </v-col>
     </v-row>
 
@@ -96,11 +96,16 @@ export default {
       type: Function,
       required: true
     },
+    formatNumber: {
+      type: Function,
+      required: true
+    }
   },
   setup(props) {
     return {
       project: props.project,
       formatDate: props.formatDate,
+      formatNumber: props.formatNumber,
     };
   }
 };

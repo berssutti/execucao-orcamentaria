@@ -196,8 +196,7 @@
       }
   
       const projectData = await response.json();
-      router.push(`/projects/${isEditing.value ? props.id : projectData.id}`);
-      // router.push({ name: 'ProjectDetails', params: { id: projectData.id } });
+      router.push({ name: 'ProjectDetails', params: { id: projectData.id } });
     } catch (error) {
       console.error('Erro:', error);
     }

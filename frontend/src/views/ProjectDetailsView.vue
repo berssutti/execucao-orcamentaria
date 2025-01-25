@@ -12,11 +12,13 @@
                 v-if="project"
                 :project="project"
                 :formatDate="formatDate"
+                :formatNumber="formatNumber"
             />
 
             <InstallmentList
                 :installments="installments"
                 :formatDate="formatDate"
+                :formatNumber="formatNumber"
                 @add="handleAddInstallment"
                 @edit="handleEditInstallment"
                 @delete="handleShowDeleteInstallmentDialog"
@@ -70,6 +72,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProject } from '@/composables/useProject';
 import { useInstallments } from '@/composables/useInstallments';
+import { numberFormatter } from '@/utils/numberFormatter';
 import { dateFormatter } from '@/utils/dateFormatter';
 import ProjectHeader from '@/components/project/details/ProjectHeader.vue';
 import ProjectInfo from '@/components/project/details/ProjectInfo.vue';
@@ -111,6 +114,7 @@ export default {
             color: 'success'
         });
 
+        const formatNumber = (num) => numberFormatter(num);
         const formatDate = (date) => dateFormatter(date);
 
         const handleBack = () => router.push({ name: 'ProjectList' });
@@ -228,6 +232,7 @@ export default {
             projectLoading,
             installments,
             installmentsLoading,
+            formatNumber,
             formatDate,
             handleBack,
             showInstallmentForm,

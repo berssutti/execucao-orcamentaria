@@ -17,7 +17,7 @@
           <v-list-item v-bind="props" @click="toggleDetails(index)">
             
               <v-list-item-title>
-                Parcela {{ index + 1 }} - Status: {{ installment.status }}  - R$ {{ installment.amount }}
+                Parcela {{ index + 1 }} - Status: {{ installment.status }}  - R$ {{ formatNumber(installment.amount) }}
               </v-list-item-title>
 
             <v-list-item-action>
@@ -69,10 +69,14 @@ export default defineComponent({
       type: Function,
       required: true,
     },
+    formatNumber: {
+      type: Function,
+      required: true,
+    },
   },
   emits: ['add', 'edit', 'delete', 'chart'],
   setup(props, { emit }) {
-    const { installments, formatDate } = toRefs(props);
+    const { installments, formatDate, formatNumber } = toRefs(props);
 
     const expandedIndex = ref(null);
 
@@ -86,6 +90,7 @@ export default defineComponent({
     return {
       installments,
       formatDate,
+      formatNumber,
       expandedIndex,
       emitAdd,
       emitViewChart,
