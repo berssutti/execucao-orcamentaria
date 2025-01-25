@@ -79,7 +79,6 @@
   });
   
   const areaList = ref([]);
-  const statusOptions = ref(['Processando', 'Recebido']);
   const isEditing = ref(false);
   const snackbar = ref({
             show: false,
@@ -104,14 +103,6 @@
                 color
             };
         };
-
-  
-  const filteredAreaList = (index) => {
-    const selectedAreas = project.value.areas
-      .map((a, i) => (i !== index ? a.id : null))
-      .filter((id) => id);
-    return areaList.value.filter((area) => !selectedAreas.includes(area.id));
-  };
   
   const fetchProjectDetails = async () => {
     if (props.id) {
@@ -206,6 +197,7 @@
   
       const projectData = await response.json();
       router.push(`/projects/${isEditing.value ? props.id : projectData.id}`);
+      // router.push({ name: 'ProjectDetails', params: { id: projectData.id } });
     } catch (error) {
       console.error('Erro:', error);
     }

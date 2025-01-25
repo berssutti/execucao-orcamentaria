@@ -21,7 +21,6 @@
                 @edit="handleEditInstallment"
                 @delete="handleShowDeleteInstallmentDialog"
                 @chart="handleProjectInstallmentChart"
-                @toggle-details="handleToggleDetails"
             />
 
             <InstallmentForm
@@ -101,7 +100,7 @@ export default {
 
         const showInstallmentForm = ref(false);
         const showProjectInstallmentChart = ref(false);
-        const currentInstallment = ref(null);
+        const currentInstallment = ref({});
         const isEditing = ref(false);
         const showDeleteProjectDialog = ref(false);
         const showDeleteInstallmentDialog = ref(false);
@@ -198,7 +197,7 @@ export default {
 
         const handleCloseInstallmentForm = () => {
             showInstallmentForm.value = false;
-            currentInstallment.value = null;
+            currentInstallment.value = {};
             isEditing.value = false;
         };
 

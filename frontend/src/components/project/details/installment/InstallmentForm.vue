@@ -92,7 +92,7 @@ export default {
     };
 
     const cancel = () => {
-      Object.assign(localInstallment, props.installment);
+      props.installment ? Object.assign(localInstallment, props.installment) : Object.assign(localInstallment, {});
       form.value?.resetValidation();
       emit('close');
     };

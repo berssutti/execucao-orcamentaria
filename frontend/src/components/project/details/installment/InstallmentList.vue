@@ -15,11 +15,11 @@
       <v-list-group v-for="(installment, index) in installments" :key="index" v-model:opened="installment.opened">
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" @click="toggleDetails(index)">
-            <v-list-item-content>
+            
               <v-list-item-title>
                 Parcela {{ index + 1 }} - Status: {{ installment.status }}  - R$ {{ installment.amount }}
               </v-list-item-title>
-            </v-list-item-content>
+
             <v-list-item-action>
               <v-btn @click="emitEdit(installment)" color="primary" size="small">Editar</v-btn>
               <v-btn class="ml-2" @click="emitDelete(installment.id)" color="red" size="small">Deletar</v-btn>
@@ -27,7 +27,7 @@
           </v-list-item>
         </template>
         <v-list-item v-if="expandedIndex === index">
-          <v-list-item-content>
+          
             <v-list-item-subtitle>
               <strong>Data Estimada:</strong> {{ formatDate(installment.estimated_date) }}
             </v-list-item-subtitle>
@@ -40,7 +40,7 @@
             <v-list-item-subtitle>
               <strong>Destino:</strong> {{ installment.destination || 'N/A' }}
             </v-list-item-subtitle>
-          </v-list-item-content>
+
         </v-list-item>
       </v-list-group>
     </v-list>
@@ -70,7 +70,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ['add', 'edit', 'delete', 'view-chart'],
+  emits: ['add', 'edit', 'delete', 'chart'],
   setup(props, { emit }) {
     const { installments, formatDate } = toRefs(props);
 

@@ -6,11 +6,12 @@ export function useProject() {
     const loading = ref(false);
     const error = ref(null);
 
-    const fetchProject = async (id) => {
+    const fetchProject = async (id=null) => {
         loading.value = true;
-        
+        let response = null;
+
         try {
-            const response = await projectService.getProject(id);
+            id ? response = await projectService.getProject(id) : response = await projectService.getAllProjects();
             project.value = response.data;
         } catch(err) {
             error.value = 'Erro ao carregar projeto';
