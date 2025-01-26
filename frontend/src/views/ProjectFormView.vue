@@ -90,7 +90,6 @@
   const rules = {
     required: (value) => !!value || 'Campo obrigatório.',
     maxLength: (max) => (value) => value.length <= max || `Máximo de ${max} caracteres.`,
-    positive: (value) => parseFloat(value) > 0 || 'Deve ser um número positivo.',
     seiFormat: (value) => /^\d{5}\.\d{6}\/\d{4}-\d{2}$/.test(value) || 
       'Formato inválido. Use: *****.******/****-**',
     percentage: (value) => value >= 0 && value <= 100 || 'A porcentagem deve estar entre 0 e 100.',

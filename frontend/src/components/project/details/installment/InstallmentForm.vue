@@ -7,11 +7,11 @@
       <v-card-text>
         <v-form ref="form" v-model="valid">
           <v-text-field
-            v-model="localInstallment.amount"
+            v-model="displayAmount"
+            @input="handleAmountInput"
             label="Valor"
             :rules="[v => !!v || 'Campo obrigatório']"
             prefix="R$"
-            type="number"
           />
           <v-text-field
             v-model="localInstallment.estimated_date"
@@ -62,7 +62,8 @@
 </template>
 
 <script>
-import { ref, watch, reactive } from 'vue';
+import { ref, watch, reactive, computed } from 'vue';
+import { formatCurrency, parseCurrency } from '@/utils/currencyUtils';
 
 export default {
   name: 'InstallmentForm',
@@ -86,6 +87,19 @@ export default {
     const valid = ref(false);
     const statusOptions = ref(['Atrasada', 'Quitada', 'Pendente']);
     const localInstallment = reactive({ ...props.installment });
+
+    const displayAmount = computed({
+      get() {
+        return localInstallment.amount ? formatCurrency(localInstallment.amount) : '';
+      },
+      set(newValue) {
+        return newValue;
+      }
+    });
+
+    const handleAmountInput = (event) => {
+      localInstallment.amount = parseCurrency(event.target.value);
+    };
 
     const updateModelValue = (value) => {
       emit('update:modelValue', value);
@@ -115,6 +129,8 @@ export default {
       form,
       valid,
       localInstallment,
+      displayAmount,
+      handleAmountInput,
       updateModelValue,
       cancel,
       save,

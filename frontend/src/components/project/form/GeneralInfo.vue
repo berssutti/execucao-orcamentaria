@@ -38,6 +38,7 @@
             label="Processo SEI"
             placeholder="*****.******/****-**"
             :rules="[rules.required, rules.seiFormat]"
+            @input="project.processo_sei = formatSeiProcess($event.target.value)"
             required
           ></v-text-field>
         </v-col>
@@ -74,13 +75,34 @@
     </div>
   </template>
   
-  <script setup>
-  const props = defineProps({
-    project: Object,
-    rules: Object,
-  });
-  
-  const statusOptions = ['Processando', 'Recebido'];
-  const emit = defineEmits(['update:project', 'status-change']);
-  </script>
-  
+<script setup>
+import { ref, defineProps, defineEmits, computed } from 'vue'
+
+const props = defineProps({
+  project: Object,
+  rules: Object,
+})
+
+const statusOptions = ['Processando', 'Recebido']
+const emit = defineEmits(['update:project', 'status-change'])
+
+const formatSeiProcess = (value) => {
+  if (!value) return value
+
+  const cleanedValue = value.replace(/\D/g, '')
+
+  if (cleanedValue.length <= 5) {
+    return cleanedValue
+  } else if (cleanedValue.length <= 11) {
+    return `${cleanedValue.slice(0, 5)}.${cleanedValue.slice(5)}`
+  } else if (cleanedValue.length <= 15) {
+    return `${cleanedValue.slice(0, 5)}.${cleanedValue.slice(5, 11)}/${cleanedValue.slice(11, 15)}`
+  } else {
+    return `${cleanedValue.slice(0, 5)}.${cleanedValue.slice(5, 11)}/${cleanedValue.slice(11, 15)}-${cleanedValue.slice(15, 17)}`
+  }
+}
+
+const formattedSeiProcess = computed(() => {
+  return formatSeiProcess(props.project.processo_sei)
+})
+</script>
