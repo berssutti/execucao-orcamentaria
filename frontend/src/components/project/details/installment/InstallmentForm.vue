@@ -63,7 +63,7 @@
 
 <script>
 import { ref, watch, reactive, computed } from 'vue';
-import { formatCurrency, parseCurrency } from '@/utils/currencyUtils';
+import { parseCurrency } from '@/utils/currencyUtils';
 
 export default {
   name: 'InstallmentForm',
@@ -90,7 +90,7 @@ export default {
 
     const displayAmount = computed({
       get() {
-        return localInstallment.amount ? formatCurrency(localInstallment.amount) : '';
+        return localInstallment.amount ? localInstallment.amount.toFixed(2)  : '';
       },
       set(newValue) {
         return newValue;
