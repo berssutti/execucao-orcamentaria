@@ -6,7 +6,7 @@ from .models import Project, Area, Installment
 from .serializers import ProjectSerializer, AreaSerializer, InstallmentSerializer 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.all().order_by('start_date')
     serializer_class = ProjectSerializer
 
 class AreaViewSet(viewsets.ModelViewSet):

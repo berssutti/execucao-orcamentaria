@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import ProjectForm from '@/components/ProjectForm.vue';
-import ProjectList from '@/components/ProjectList.vue';
-import ProjectDetails from '@/components/ProjectDetails.vue';
+import ProjectForm from '@/views/ProjectFormView.vue';
+import ProjectList from '@/views/ProjectListView.vue';
+import ProjectDetails from '@/views/ProjectDetailsView.vue';
 
 const routes = [
   {
