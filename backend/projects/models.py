@@ -39,17 +39,17 @@ class Project(models.Model):
         default='Processando',
     )
     nota_dotacao = models.CharField(
-        max_length=30,
+        max_length=100,
         null=True,
         blank=True
     )
     ptres = models.CharField(
-        max_length=6,
+        max_length=100,
         null=True,
         blank=True
     )
     ugr = models.CharField(
-        max_length=6,
+        max_length=100,
         null=True,
         blank=True
     )
